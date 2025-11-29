@@ -1,0 +1,112 @@
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import {
+  CardComponent, CardBodyComponent, CardHeaderComponent,
+  ButtonDirective, GridModule, FormModule, BadgeComponent,
+  SpinnerComponent, AlertComponent
+} from '@coreui/angular';
+import { IconDirective } from '@coreui/icons-angular';
+
+@Component({
+  selector: 'app-transcript-review',
+  standalone: true,
+  imports: [
+    CommonModule,
+    CardComponent, CardBodyComponent, CardHeaderComponent,
+    ButtonDirective, GridModule, FormModule, BadgeComponent,
+    SpinnerComponent, AlertComponent, IconDirective
+  ],
+  template: `
+    <c-row>
+      <c-col xs="12">
+        <c-card class="mb-4">
+          <c-card-header>
+            <strong>Step 4: Transcript Review & Insight Extraction</strong>
+          </c-card-header>
+          <c-card-body>
+            <c-row>
+              <c-col md="7">
+                <h5 class="mb-3">Conversation Transcript</h5>
+                <textarea cFormControl rows="15" readonly class="bg-light mb-3" style="resize: none;">{{ transcript }}</textarea>
+              </c-col>
+
+              <c-col md="5">
+                <c-card class="border-0 bg-light h-100">
+                  <c-card-body>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                      <h5 class="card-title text-primary mb-0">
+                        <svg cIcon class="me-2" name="cilLightbulb"></svg>
+                        AI Analysis
+                      </h5>
+                      <button cButton color="primary" (click)="analyze()" [disabled]="isAnalyzing || showInsights">
+                        @if (isAnalyzing) {
+                          <c-spinner size="sm" class="me-2"></c-spinner>
+                          Analyzing...
+                        } @else {
+                          Analyze with AI
+                        }
+                      </button>
+                    </div>
+
+                    @if (showInsights) {
+                      @for (insight of insights; track insight.title) {
+                        <c-alert color="success" class="mb-3">
+                          <h6 class="alert-heading">{{ insight.title }}</h6>
+                          <p class="mb-0 small">{{ insight.description }}</p>
+                        </c-alert>
+                      }
+
+                      <div class="d-grid mt-4">
+                        <button cButton color="primary" (click)="generatePrompt()">
+                          Generate Research Prompt
+                          <svg cIcon class="ms-2" name="cilArrowRight"></svg>
+                        </button>
+                      </div>
+                    } @else if (!isAnalyzing) {
+                      <div class="text-center text-muted mt-5">
+                        <p>Click "Analyze with AI" to extract key insights from the transcript.</p>
+                      </div>
+                    }
+                  </c-card-body>
+                </c-card>
+              </c-col>
+            </c-row>
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
+  `
+})
+export class TranscriptReviewComponent {
+  private router = inject(Router);
+
+  isAnalyzing = false;
+  showInsights = false;
+
+  transcript = `Consultant: So, tell me about your main challenges.
+Client: Well, we are struggling with customer retention.
+Consultant: Interesting. Is it across all segments?
+Client: Mostly in the enterprise segment.
+Consultant: I see. Have you tried any loyalty programs?
+Client: We have, but adoption is low.
+Consultant: What kind of feedback are you getting?
+Client: They say the onboarding is too complex.`;
+
+  insights = [
+    { title: 'Pain Point', description: 'High churn in enterprise segment due to complex onboarding.' },
+    { title: 'Opportunity', description: 'Simplify enterprise onboarding process to improve retention.' }
+  ];
+
+  analyze() {
+    this.isAnalyzing = true;
+    setTimeout(() => {
+      this.isAnalyzing = false;
+      this.showInsights = true;
+    }, 2000);
+  }
+
+  generatePrompt() {
+    this.router.navigate(['/projects', '1', 'research']);
+  }
+}

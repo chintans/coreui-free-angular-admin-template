@@ -1,0 +1,218 @@
+
+> coreui-free-angular-admin-template@5.5.24 build E:\Github\chintans\stratformx-frontend
+> ng build
+
+[33mÔØ»[39m Building...
+[32mÔ£ö[39m Building...
+Application bundle generation failed. [14.765 seconds] - 2025-11-28T15:58:42.441Z
+
+Ôû▓ [WARNING] NG8113: ProgressComponent is not used within the template of ClientPortalComponent [plugin angular-compiler]
+
+    src/app/views/client-portal/client-portal.component.ts:17:4:
+      17 Ôöé     ProgressComponent, ListGroupDirective, ListGroupItemDirective,...
+         ÔòÁ     ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: ButtonGroupComponent is not used within the template of DashboardComponent [plugin angular-compiler]
+
+    src/app/views/dashboard/dashboard.component.ts:41:127:
+      41 Ôöé ... ReactiveFormsModule, ButtonGroupComponent, FormCheckLabelDirec...
+         ÔòÁ                          ~~~~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: FormCheckLabelDirective is not used within the template of DashboardComponent [plugin angular-compiler]
+
+    src/app/views/dashboard/dashboard.component.ts:41:149:
+      41 Ôöé ...ttonGroupComponent, FormCheckLabelDirective, NgStyle, CardFoote...
+         ÔòÁ                        ~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: NgStyle is not used within the template of DashboardComponent [plugin angular-compiler]
+
+    src/app/views/dashboard/dashboard.component.ts:41:174:
+      41 Ôöé ...t, FormCheckLabelDirective, NgStyle, CardFooterComponent, Gutte...
+         ÔòÁ                                ~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: CardFooterComponent is not used within the template of DashboardComponent [plugin angular-compiler]
+
+    src/app/views/dashboard/dashboard.component.ts:41:183:
+      41 Ôöé ...elDirective, NgStyle, CardFooterComponent, GutterDirective, Pro...
+         ÔòÁ                          ~~~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: GutterDirective is not used within the template of DashboardComponent [plugin angular-compiler]
+
+    src/app/views/dashboard/dashboard.component.ts:41:204:
+      41 Ôöé ...e, CardFooterComponent, GutterDirective, ProgressComponent, Car...
+         ÔòÁ                            ~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: CardHeaderComponent is not used within the template of DashboardComponent [plugin angular-compiler]
+
+    src/app/views/dashboard/dashboard.component.ts:41:240:
+      41 Ôöé ...e, ProgressComponent, CardHeaderComponent, TableDirective, Avat...
+         ÔòÁ                          ~~~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: AvatarComponent is not used within the template of DashboardComponent [plugin angular-compiler]
+
+    src/app/views/dashboard/dashboard.component.ts:41:277:
+      41 Ôöé ...ponent, TableDirective, AvatarComponent, RouterLink, WidgetStat...
+         ÔòÁ                            ~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: CardHeaderComponent is not used within the template of MarketplaceComponent [plugin angular-compiler]
+
+    src/app/views/marketplace/marketplace.component.ts:16:38:
+      16 Ôöé     CardComponent, CardBodyComponent, CardHeaderComponent,
+         ÔòÁ                                       ~~~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: RouterLink is not used within the template of ConversationDesignerComponent [plugin angular-compiler]
+
+    src/app/views/projects/conversation-designer/conversation-designer.component.ts:15:18:
+      15 Ôöé     CommonModule, RouterLink,
+         ÔòÁ                   ~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: BadgeComponent is not used within the template of ConversationDesignerComponent [plugin angular-compiler]
+
+    src/app/views/projects/conversation-designer/conversation-designer.component.ts:18:4:
+      18 Ôöé     BadgeComponent, AlertComponent, IconDirective
+         ÔòÁ     ~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: BadgeComponent is not used within the template of DeepResearchComponent [plugin angular-compiler]
+
+    src/app/views/projects/deep-research/deep-research.component.ts:17:45:
+      17 Ôöé     ButtonDirective, GridModule, FormModule, BadgeComponent,
+         ÔòÁ                                              ~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: RouterLink is not used within the template of NewProjectComponent [plugin angular-compiler]
+
+    src/app/views/projects/new-project/new-project.component.ts:15:39:
+      15 Ôöé     CommonModule, ReactiveFormsModule, RouterLink,
+         ÔòÁ                                        ~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: BadgeComponent is not used within the template of RecordingComponent [plugin angular-compiler]
+
+    src/app/views/projects/recording/recording.component.ts:16:33:
+      16 Ôöé     ButtonDirective, GridModule, BadgeComponent, ProgressComponent,
+         ÔòÁ                                  ~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: ProgressComponent is not used within the template of RecordingComponent [plugin angular-compiler]
+
+    src/app/views/projects/recording/recording.component.ts:16:49:
+      16 Ôöé     ButtonDirective, GridModule, BadgeComponent, ProgressComponent,
+         ÔòÁ                                                  ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: BadgeComponent is not used within the template of ReportReviewComponent [plugin angular-compiler]
+
+    src/app/views/projects/report-review/report-review.component.ts:18:45:
+      18 Ôöé     ButtonDirective, GridModule, FormModule, BadgeComponent,
+         ÔòÁ                                              ~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: SpinnerComponent is not used within the template of StrategyBuilderComponent [plugin angular-compiler]
+
+    src/app/views/projects/strategy-builder/strategy-builder.component.ts:18:4:
+      18 Ôöé     SpinnerComponent, ProgressComponent, IconDirective
+         ÔòÁ     ~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: ProgressComponent is not used within the template of StrategyBuilderComponent [plugin angular-compiler]
+
+    src/app/views/projects/strategy-builder/strategy-builder.component.ts:18:22:
+      18 Ôöé     SpinnerComponent, ProgressComponent, IconDirective
+         ÔòÁ                       ~~~~~~~~~~~~~~~~~
+
+
+Ôû▓ [WARNING] NG8113: BadgeComponent is not used within the template of TranscriptReviewComponent [plugin angular-compiler]
+
+    src/app/views/projects/transcript-review/transcript-review.component.ts:17:45:
+      17 Ôöé     ButtonDirective, GridModule, FormModule, BadgeComponent,
+         ÔòÁ                                              ~~~~~~~~~~~~~~
+
+
+X [ERROR] NG8001: 'c-tab-panel' is not a known element:
+1. If 'c-tab-panel' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
+2. If 'c-tab-panel' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message. [plugin angular-compiler]
+
+    src/app/views/client-portal/client-portal.component.ts:55:14:
+      55 Ôöé               <c-tab-panel class="p-3 fade" [itemKey]="0">
+         ÔòÁ               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG8002: Can't bind to 'itemKey' since it isn't a known property of 'c-tab-panel'.
+1. If 'c-tab-panel' is an Angular component and it has 'itemKey' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'c-tab-panel' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component. [plugin angular-compiler]
+
+    src/app/views/client-portal/client-portal.component.ts:55:44:
+      55 Ôöé               <c-tab-panel class="p-3 fade" [itemKey]="0">
+         ÔòÁ                                             ~~~~~~~~~~~~~
+
+
+X [ERROR] NG8001: 'c-tab-panel' is not a known element:
+1. If 'c-tab-panel' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
+2. If 'c-tab-panel' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message. [plugin angular-compiler]
+
+    src/app/views/client-portal/client-portal.component.ts:83:14:
+      83 Ôöé               <c-tab-panel class="p-3 fade" [itemKey]="1">
+         ÔòÁ               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG8002: Can't bind to 'itemKey' since it isn't a known property of 'c-tab-panel'.
+1. If 'c-tab-panel' is an Angular component and it has 'itemKey' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'c-tab-panel' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component. [plugin angular-compiler]
+
+    src/app/views/client-portal/client-portal.component.ts:83:44:
+      83 Ôöé               <c-tab-panel class="p-3 fade" [itemKey]="1">
+         ÔòÁ                                             ~~~~~~~~~~~~~
+
+
+X [ERROR] NG8001: 'c-tab-panel' is not a known element:
+1. If 'c-tab-panel' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
+2. If 'c-tab-panel' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message. [plugin angular-compiler]
+
+    src/app/views/client-portal/client-portal.component.ts:96:14:
+      96 Ôöé               <c-tab-panel class="p-3 fade" [itemKey]="2">
+         ÔòÁ               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG8002: Can't bind to 'itemKey' since it isn't a known property of 'c-tab-panel'.
+1. If 'c-tab-panel' is an Angular component and it has 'itemKey' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'c-tab-panel' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component. [plugin angular-compiler]
+
+    src/app/views/client-portal/client-portal.component.ts:96:44:
+      96 Ôöé               <c-tab-panel class="p-3 fade" [itemKey]="2">
+         ÔòÁ                                             ~~~~~~~~~~~~~
+
+
+X [ERROR] NG8001: 'c-tab-panel' is not a known element:
+1. If 'c-tab-panel' is an Angular component, then verify that it is included in the '@Component.imports' of this component.
+2. If 'c-tab-panel' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message. [plugin angular-compiler]
+
+    src/app/views/client-portal/client-portal.component.ts:114:14:
+      114 Ôöé               <c-tab-panel class="p-3 fade" [itemKey]="3">
+          ÔòÁ               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+X [ERROR] NG8002: Can't bind to 'itemKey' since it isn't a known property of 'c-tab-panel'.
+1. If 'c-tab-panel' is an Angular component and it has 'itemKey' input, then verify that it is included in the '@Component.imports' of this component.
+2. If 'c-tab-panel' is a Web Component then add 'CUSTOM_ELEMENTS_SCHEMA' to the '@Component.schemas' of this component to suppress this message.
+3. To allow any property add 'NO_ERRORS_SCHEMA' to the '@Component.schemas' of this component. [plugin angular-compiler]
+
+    src/app/views/client-portal/client-portal.component.ts:114:44:
+      114 Ôöé               <c-tab-panel class="p-3 fade" [itemKey]="3">
+          ÔòÁ                                             ~~~~~~~~~~~~~
+
+
+ÔÇëELIFECYCLEÔÇë Command failed with exit code 1.

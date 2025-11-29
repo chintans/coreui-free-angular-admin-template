@@ -11,6 +11,21 @@ export const navItems: INavData[] = [
     }
   },
   {
+    name: 'Projects',
+    url: '/projects',
+    iconComponent: { name: 'cil-briefcase' }
+  },
+  {
+    name: 'Marketplace',
+    url: '/marketplace',
+    iconComponent: { name: 'cil-cart' }
+  },
+  {
+    name: 'Client Portal',
+    url: '/client-portal',
+    iconComponent: { name: 'cil-user' }
+  },
+  {
     title: true,
     name: 'Theme'
   },

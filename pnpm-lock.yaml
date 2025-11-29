@@ -62,6 +62,12 @@ importers:
       '@coreui/utils':
         specifier: ^2.0.2
         version: 2.0.2
+      '@kurkle/color':
+        specifier: ^0.4.0
+        version: 0.4.0
+      '@popperjs/core':
+        specifier: ^2.11.8
+        version: 2.11.8
       chart.js:
         specifier: ^4.5.1
         version: 4.5.1
@@ -809,6 +815,9 @@ packages:
 
   '@kurkle/color@0.3.4':
     resolution: {integrity: sha512-M5UknZPHRu3DEDWoipU6sE8PdkZ6Z/S+v4dD+Ke8IaNlpdSQah50lz1KtcFBa2vsdOnwbbnxJwVM4wty6udA5w==}
+
+  '@kurkle/color@0.4.0':
+    resolution: {integrity: sha512-H4MGdCNqaMQW2gz47VNOE7zLy8s1NLLpvzxFTpWIPJzlmkYQMkOD9pRwrMWRDYjyErxL297mbgK6yyLuGdGEbg==}
 
   '@listr2/prompt-adapter-inquirer@3.0.1':
     resolution: {integrity: sha512-3XFmGwm3u6ioREG+ynAQB7FoxfajgQnMhIu8wC5eo/Lsih4aKDg0VuIMGaOsYn7hJSJagSeaD4K8yfpkEoDEmA==}
@@ -3697,6 +3706,8 @@ snapshots:
       '@jridgewell/sourcemap-codec': 1.5.5
 
   '@kurkle/color@0.3.4': {}
+
+  '@kurkle/color@0.4.0': {}
 
   '@listr2/prompt-adapter-inquirer@3.0.1(@inquirer/prompts@7.8.2(@types/node@22.19.1))(@types/node@22.19.1)(listr2@9.0.1)':
     dependencies:

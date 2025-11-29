@@ -18,6 +18,18 @@ export const routes: Routes = [
         loadChildren: () => import('./views/dashboard/routes').then((m) => m.routes)
       },
       {
+        path: 'projects',
+        loadChildren: () => import('./views/projects/routes').then((m) => m.routes)
+      },
+      {
+        path: 'marketplace',
+        loadChildren: () => import('./views/marketplace/routes').then((m) => m.routes)
+      },
+      {
+        path: 'client-portal',
+        loadChildren: () => import('./views/client-portal/routes').then((m) => m.routes)
+      },
+      {
         path: 'theme',
         loadChildren: () => import('./views/theme/routes').then((m) => m.routes)
       },

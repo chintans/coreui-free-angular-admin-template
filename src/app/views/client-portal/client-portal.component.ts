@@ -1,0 +1,164 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import {
+  CardComponent, CardBodyComponent, CardHeaderComponent,
+  ButtonDirective, GridModule, NavModule, TabsModule, TabPanelComponent, TabsContentComponent,
+  ProgressComponent, ListGroupDirective, ListGroupItemDirective, AvatarComponent, BadgeComponent
+} from '@coreui/angular';
+import { IconDirective } from '@coreui/icons-angular';
+
+@Component({
+  selector: 'app-client-portal',
+  standalone: true,
+  imports: [
+    CommonModule,
+    CardComponent, CardBodyComponent, CardHeaderComponent,
+    ButtonDirective, GridModule, NavModule, TabsModule, TabPanelComponent, TabsContentComponent,
+    ProgressComponent, ListGroupDirective, ListGroupItemDirective, AvatarComponent, BadgeComponent,
+    IconDirective
+  ],
+  template: `
+    <c-row>
+      <c-col xs="12">
+        <c-card class="mb-4">
+          <c-card-header>
+            <strong>Client Portal: Acme Corp - Go-To-Market Strategy</strong>
+          </c-card-header>
+          <c-card-body>
+            <c-nav variant="tabs">
+              <c-nav-item>
+                <a [active]="activeTab === 0" [cTabContent]="tabContent" [tabPaneIdx]="0" cNavLink (click)="onTabChange(0)">
+                  <svg cIcon class="me-2" name="cilChartLine"></svg>
+                  Progress
+                </a>
+              </c-nav-item>
+              <c-nav-item>
+                <a [active]="activeTab === 1" [cTabContent]="tabContent" [tabPaneIdx]="1" cNavLink (click)="onTabChange(1)">
+                  <svg cIcon class="me-2" name="cilFile"></svg>
+                  Report
+                </a>
+              </c-nav-item>
+              <c-nav-item>
+                <a [active]="activeTab === 2" [cTabContent]="tabContent" [tabPaneIdx]="2" cNavLink (click)="onTabChange(2)">
+                  <svg cIcon class="me-2" name="cilList"></svg>
+                  Action Plan
+                </a>
+              </c-nav-item>
+              <c-nav-item>
+                <a [active]="activeTab === 3" [cTabContent]="tabContent" [tabPaneIdx]="3" cNavLink (click)="onTabChange(3)">
+                  <svg cIcon class="me-2" name="cilPeople"></svg>
+                  Resources
+                </a>
+              </c-nav-item>
+            </c-nav>
+            <c-tab-content #tabContent="cTabContent" [activeTabPaneIdx]="activeTab" class="p-3 border border-top-0 rounded-bottom">
+              <c-tab-panel class="p-3 fade" [itemKey]="0">
+                <h5 class="mb-4">Project Timeline</h5>
+                <div class="position-relative">
+                  @for (step of timeline; track step.title; let last = $last) {
+                    <div class="d-flex mb-4">
+                      <div class="d-flex flex-column align-items-center me-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white"
+                             [ngClass]="'bg-' + step.color"
+                             style="width: 30px; height: 30px;">
+                          @if (step.status === 'Completed') {
+                            <svg cIcon name="cilCheck"></svg>
+                          } @else {
+                            <span class="small">{{ $index + 1 }}</span>
+                          }
+                        </div>
+                        @if (!last) {
+                          <div class="h-100 border-start border-2 my-1"></div>
+                        }
+                      </div>
+                      <div>
+                        <h6 class="mb-1">{{ step.title }}</h6>
+                        <p class="mb-0 text-muted small">{{ step.date }} - {{ step.status }}</p>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </c-tab-panel>
+              
+              <c-tab-panel class="p-3 fade" [itemKey]="1">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5>Strategy Report Preview</h5>
+                  <button cButton color="primary" variant="outline">
+                    <svg cIcon class="me-2" name="cilCloudDownload"></svg>
+                    Download PDF
+                  </button>
+                </div>
+                <div class="bg-light p-4 rounded text-center text-muted" style="min-height: 300px; display: flex; align-items: center; justify-content: center;">
+                  <p>Report preview would be rendered here (PDF viewer or HTML content).</p>
+                </div>
+              </c-tab-panel>
+
+              <c-tab-panel class="p-3 fade" [itemKey]="2">
+                <h5 class="mb-3">Strategic Recommendations</h5>
+                <ul cListGroup>
+                  @for (item of recommendations; track item.title) {
+                    <li cListGroupItem class="d-flex justify-content-between align-items-center">
+                      <div>
+                        <strong>{{ item.title }}</strong>
+                        <br>
+                        <small class="text-muted">Priority: {{ item.priority }}</small>
+                      </div>
+                      <c-badge [color]="item.status === 'Not Started' ? 'secondary' : (item.status === 'In Progress' ? 'info' : 'success')">
+                        {{ item.status }}
+                      </c-badge>
+                    </li>
+                  }
+                </ul>
+              </c-tab-panel>
+
+              <c-tab-panel class="p-3 fade" [itemKey]="3">
+                <h5 class="mb-3">Assigned Resources</h5>
+                <c-row>
+                  @for (resource of resources; track resource.name) {
+                    <c-col md="6" class="mb-3">
+                      <c-card>
+                        <c-card-body class="d-flex align-items-center">
+                          <c-avatar [src]="'./assets/images/avatars/' + resource.avatar" size="lg" class="me-3"></c-avatar>
+                          <div>
+                            <h6 class="mb-1">{{ resource.name }}</h6>
+                            <p class="mb-1 small text-muted">{{ resource.role }}</p>
+                            <a href="mailto:{{ resource.email }}" class="small">{{ resource.email }}</a>
+                          </div>
+                        </c-card-body>
+                      </c-card>
+                    </c-col>
+                  }
+                </c-row>
+              </c-tab-panel>
+            </c-tab-content>
+          </c-card-body>
+        </c-card>
+      </c-col>
+    </c-row>
+  `
+})
+export class ClientPortalComponent {
+  activeTab = 0;
+
+  timeline = [
+    { title: 'Discovery Call', date: 'Oct 15', status: 'Completed', color: 'success' },
+    { title: 'Market Research', date: 'Oct 20', status: 'Completed', color: 'success' },
+    { title: 'Strategy Development', date: 'Oct 25', status: 'In Progress', color: 'primary' },
+    { title: 'Final Report', date: 'Nov 01', status: 'Pending', color: 'secondary' }
+  ];
+
+  recommendations = [
+    { title: 'Simplify Onboarding', priority: 'High', status: 'Not Started' },
+    { title: 'Tiered Support', priority: 'Medium', status: 'In Progress' },
+    { title: 'Content Campaign', priority: 'Low', status: 'Planned' }
+  ];
+
+  resources = [
+    { name: 'Sarah Jenkins', role: 'Content Strategist', email: 'sarah@example.com', avatar: '2.jpg' },
+    { name: 'GrowthHacker Agency', role: 'PPC Partner', email: 'contact@growthhacker.com', avatar: '1.jpg' }
+  ];
+
+  onTabChange(event: number) {
+    this.activeTab = event;
+  }
+}
