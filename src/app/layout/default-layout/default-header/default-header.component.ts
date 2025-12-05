@@ -1,6 +1,6 @@
-import { NgTemplateOutlet } from '@angular/common';
+import { NgTemplateOutlet, NgIf } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterLink } from '@angular/router';
 
 import {
   AvatarComponent,
@@ -17,22 +17,33 @@ import {
   HeaderComponent,
   HeaderNavComponent,
   HeaderTogglerDirective,
-  NavItemComponent,
   NavLinkDirective,
   SidebarToggleDirective
 } from '@coreui/angular';
 
 import { IconDirective } from '@coreui/icons-angular';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-default-header',
   templateUrl: './default-header.component.html',
-  imports: [ContainerComponent, HeaderTogglerDirective, SidebarToggleDirective, IconDirective, HeaderNavComponent, NavItemComponent, NavLinkDirective, RouterLink, RouterLinkActive, NgTemplateOutlet, BreadcrumbRouterComponent, DropdownComponent, DropdownToggleDirective, AvatarComponent, DropdownMenuDirective, DropdownHeaderDirective, DropdownItemDirective, BadgeComponent, DropdownDividerDirective]
+  imports: [ContainerComponent, HeaderTogglerDirective, SidebarToggleDirective, IconDirective, HeaderNavComponent, NavLinkDirective, RouterLink, NgTemplateOutlet, NgIf, BreadcrumbRouterComponent, DropdownComponent, DropdownToggleDirective, AvatarComponent, DropdownMenuDirective, DropdownHeaderDirective, DropdownItemDirective, BadgeComponent, DropdownDividerDirective]
 })
 export class DefaultHeaderComponent extends HeaderComponent {
 
+  private readonly authService = inject(AuthService);
   readonly #colorModeService = inject(ColorModeService);
   readonly colorMode = this.#colorModeService.colorMode;
+
+  // Computed signals for user info
+  readonly currentUser = computed(() => this.authService.currentUser());
+  readonly userRole = computed(() => this.authService.userRole());
+  readonly userDisplayName = computed(() => this.currentUser()?.name ?? 'User');
+  readonly userEmail = computed(() => this.currentUser()?.email ?? '');
+  readonly userAvatar = computed(() => {
+    const user = this.currentUser();
+    return user?.avatar ? `./assets/images/avatars/${user.avatar}` : './assets/images/avatars/8.jpg';
+  });
 
   readonly colorModes = [
     { name: 'light', text: 'Light', icon: 'cilSun' },
@@ -43,11 +54,7 @@ export class DefaultHeaderComponent extends HeaderComponent {
   readonly icons = computed(() => {
     const currentMode = this.colorMode();
     return this.colorModes.find(mode => mode.name === currentMode)?.icon ?? 'cilSun';
-  });
-
-  constructor() {
-    super();
-  }
+  });  
 
   sidebarId = input('sidebar1');
 
@@ -125,5 +132,41 @@ export class DefaultHeaderComponent extends HeaderComponent {
     { id: 3, title: 'Add new layouts', value: 75, color: 'info' },
     { id: 4, title: 'Angular Version', value: 100, color: 'success' }
   ];
+
+  /**
+   * Handle logout
+   */
+  onLogout(): void {
+    this.authService.logout();
+  }
+
+  // Computed signals for role display
+  readonly roleBadgeColor = computed(() => {
+    const role = this.userRole();
+    switch (role) {
+      case 'super_admin':
+        return 'danger';
+      case 'consultant':
+        return 'primary';
+      case 'client':
+        return 'success';
+      default:
+        return 'secondary';
+    }
+  });
+
+  readonly roleDisplayName = computed(() => {
+    const role = this.userRole();
+    switch (role) {
+      case 'super_admin':
+        return 'Super Admin';
+      case 'consultant':
+        return 'Consultant';
+      case 'client':
+        return 'Client';
+      default:
+        return 'User';
+    }
+  });
 
 }

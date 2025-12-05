@@ -1,0 +1,198 @@
+<c-row>
+  <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-header>
+        <div class="d-flex align-items-center">
+          <svg cIcon [name]="isEditMode() ? 'cilPencil' : 'cilPlus'" class="me-2"></svg>
+          <strong>{{ isEditMode() ? 'Edit User' : 'Add New User' }}</strong>
+        </div>
+      </c-card-header>
+      <c-card-body>
+        @if (errorMessage()) {
+          <c-alert color="danger" [dismissible]="true" (close)="errorMessage.set(null)">
+            <strong>Error:</strong> {{ errorMessage() }}
+          </c-alert>
+        }
+
+        @if (successMessage()) {
+          <c-alert color="success" [dismissible]="true" (close)="successMessage.set(null)">
+            <strong>Success:</strong> {{ successMessage() }}
+          </c-alert>
+        }
+
+        <form [formGroup]="userForm" (ngSubmit)="onSubmit()">
+          <c-row>
+            <c-col xs="12" md="6">
+              <div class="mb-3">
+                <label cLabel for="username">Username</label>
+                <input
+                  cFormControl
+                  id="username"
+                  formControlName="username"
+                  placeholder="Enter username"
+                  [class.is-invalid]="getFieldError('username')"
+                  [readonly]="isEditMode()"
+                />
+                @if (getFieldError('username')) {
+                  <div class="invalid-feedback">
+                    {{ getFieldError('username') }}
+                  </div>
+                }
+                <div class="form-text">Username cannot be changed after creation</div>
+              </div>
+            </c-col>
+
+            <c-col xs="12" md="6">
+              <div class="mb-3">
+                <label cLabel for="email">Email</label>
+                <input
+                  cFormControl
+                  id="email"
+                  type="email"
+                  formControlName="email"
+                  placeholder="Enter email address"
+                  [class.is-invalid]="getFieldError('email')"
+                />
+                @if (getFieldError('email')) {
+                  <div class="invalid-feedback">
+                    {{ getFieldError('email') }}
+                  </div>
+                }
+              </div>
+            </c-col>
+          </c-row>
+
+          <c-row>
+            <c-col xs="12" md="6">
+              <div class="mb-3">
+                <label cLabel for="name">Full Name</label>
+                <input
+                  cFormControl
+                  id="name"
+                  formControlName="name"
+                  placeholder="Enter full name"
+                  [class.is-invalid]="getFieldError('name')"
+                />
+                @if (getFieldError('name')) {
+                  <div class="invalid-feedback">
+                    {{ getFieldError('name') }}
+                  </div>
+                }
+              </div>
+            </c-col>
+
+            <c-col xs="12" md="6">
+              <div class="mb-3">
+                <label cLabel for="role">Role</label>
+                <select
+                  cSelect
+                  id="role"
+                  formControlName="role"
+                  [class.is-invalid]="getFieldError('role')"
+                >
+                  @for (role of roles; track role.value) {
+                    <option [value]="role.value">{{ role.label }}</option>
+                  }
+                </select>
+                @if (getFieldError('role')) {
+                  <div class="invalid-feedback">
+                    {{ getFieldError('role') }}
+                  </div>
+                }
+                @if (getCurrentRole()) {
+                  <div class="form-text">
+                    <svg cIcon [name]="getRoleIcon(getCurrentRole())" class="me-1"></svg>
+                    {{ getRoleDescription() }}
+                  </div>
+                }
+              </div>
+            </c-col>
+          </c-row>
+
+          <hr class="my-4" />
+
+          <h5 class="mb-3">
+            {{ isEditMode() ? 'Change Password (Optional)' : 'Password' }}
+          </h5>
+
+          <c-row>
+            <c-col xs="12" md="6">
+              <div class="mb-3">
+                <label cLabel for="password">
+                  Password
+                  @if (!isEditMode()) {
+                    <span class="text-danger">*</span>
+                  }
+                </label>
+                <input
+                  cFormControl
+                  id="password"
+                  type="password"
+                  formControlName="password"
+                  placeholder="{{ isEditMode() ? 'Leave blank to keep current password' : 'Enter password' }}"
+                  [class.is-invalid]="getFieldError('password') || hasPasswordMismatch()"
+                />
+                @if (getFieldError('password')) {
+                  <div class="invalid-feedback">
+                    {{ getFieldError('password') }}
+                  </div>
+                }
+                @if (!isEditMode()) {
+                  <div class="form-text">Password must be at least 6 characters long</div>
+                }
+              </div>
+            </c-col>
+
+            <c-col xs="12" md="6">
+              <div class="mb-3">
+                <label cLabel for="confirmPassword">
+                  Confirm Password
+                  @if (!isEditMode()) {
+                    <span class="text-danger">*</span>
+                  }
+                </label>
+                <input
+                  cFormControl
+                  id="confirmPassword"
+                  type="password"
+                  formControlName="confirmPassword"
+                  placeholder="Confirm password"
+                  [class.is-invalid]="hasPasswordMismatch()"
+                />
+                @if (hasPasswordMismatch()) {
+                  <div class="invalid-feedback">Passwords do not match</div>
+                }
+              </div>
+            </c-col>
+          </c-row>
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+            <button
+              cButton
+              color="secondary"
+              type="button"
+              routerLink="/users"
+              [disabled]="isLoading()"
+            >
+              Cancel
+            </button>
+            <button
+              cButton
+              color="primary"
+              type="submit"
+              [disabled]="userForm.invalid || isLoading()"
+            >
+              @if (isLoading()) {
+                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                {{ isEditMode() ? 'Updating...' : 'Creating...' }}
+              } @else {
+                {{ isEditMode() ? 'Update User' : 'Create User' }}
+              }
+            </button>
+          </div>
+        </form>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+

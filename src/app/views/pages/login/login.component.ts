@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { NgStyle } from '@angular/common';
+import { Router, RouterLink } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { IconDirective } from '@coreui/icons-angular';
 import {
   ButtonDirective,
@@ -14,10 +16,75 @@ import {
   InputGroupTextDirective,
   RowComponent
 } from '@coreui/angular';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  imports: [ContainerComponent, RowComponent, ColComponent, CardGroupComponent, CardComponent, CardBodyComponent, FormDirective, InputGroupComponent, InputGroupTextDirective, IconDirective, FormControlDirective, ButtonDirective, NgStyle]
+  imports: [
+    ContainerComponent,
+    RowComponent,
+    ColComponent,
+    CardGroupComponent,
+    CardComponent,
+    CardBodyComponent,
+    FormDirective,
+    ReactiveFormsModule,
+    InputGroupComponent,
+    InputGroupTextDirective,
+    IconDirective,
+    FormControlDirective,
+    ButtonDirective,
+    NgStyle,
+    RouterLink
+  ]
 })
-export class LoginComponent {}
+export class LoginComponent {
+  private readonly formBuilder = inject(FormBuilder);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+  loginForm: FormGroup = this.formBuilder.group({
+    username: ['', [Validators.required]],
+    password: ['', [Validators.required]]
+  });
+
+  isLoading = signal(false);
+  errorMessage = signal<string | null>(null);
+
+  get username() {
+    return this.loginForm.get('username')!;
+  }
+
+  get password() {
+    return this.loginForm.get('password')!;
+  }
+
+  onSubmit(): void {
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      return;
+    }
+
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+
+    const credentials = {
+      username: this.username.value,
+      password: this.password.value
+    };
+
+    this.authService.login(credentials).subscribe({
+      next: (user) => {
+        this.authService.setAuthenticatedUser(user);
+        this.isLoading.set(false);
+        // Redirect based on user role
+        this.router.navigate(['/dashboard']);
+      },
+      error: (error) => {
+        this.errorMessage.set(error.message || 'Login failed. Please try again.');
+        this.isLoading.set(false);
+      }
+    });
+  }
+}

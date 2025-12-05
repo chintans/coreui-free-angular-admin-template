@@ -7,9 +7,11 @@ import {
   CardHeaderComponent,
   ButtonDirective,
   GridModule,
-  NavModule,
-  TabsModule,
+  TabDirective,
   TabPanelComponent,
+  TabsComponent,
+  TabsContentComponent,
+  TabsListComponent,
   ListGroupDirective,
   ListGroupItemDirective,
   BadgeComponent,
@@ -38,9 +40,11 @@ interface TimelineStep {
     CardHeaderComponent,
     ButtonDirective,
     GridModule,
-    NavModule,
-    TabsModule,
+    TabDirective,
     TabPanelComponent,
+    TabsComponent,
+    TabsContentComponent,
+    TabsListComponent,
     ListGroupDirective,
     ListGroupItemDirective,
     BadgeComponent,
@@ -173,8 +177,12 @@ export class ClientPortalComponent implements OnInit {
     });
   }
 
-  onTabChange(tabIndex: number): void {
-    this.activeTab.set(tabIndex);
+  onTabChange(tabIndex: string | number | undefined): void {
+    if (typeof tabIndex === 'number') {
+      this.activeTab.set(tabIndex);
+    } else if (typeof tabIndex === 'string') {
+      this.activeTab.set(Number.parseInt(tabIndex, 10));
+    }
   }
 
   getStatusColor(status: Project['status']): string {

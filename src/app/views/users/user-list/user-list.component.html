@@ -1,0 +1,199 @@
+<c-row class="mb-4">
+  <c-col xs="12">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h3>Users Management</h3>
+      <button cButton color="primary" routerLink="/users/new">
+        <svg cIcon class="me-2" name="cilPlus"></svg>
+        Add New User
+      </button>
+    </div>
+  </c-col>
+</c-row>
+
+<!-- Statistics Cards -->
+<c-row class="mb-4">
+  <c-col xs="6" md="3">
+    <c-card>
+      <c-card-body>
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small">Total Users</div>
+            <div class="fs-4 fw-bold">{{ userCounts().total }}</div>
+          </div>
+          <svg cIcon name="cilPeople" size="2xl" class="text-primary"></svg>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+  <c-col xs="6" md="3">
+    <c-card>
+      <c-card-body>
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small">Admins</div>
+            <div class="fs-4 fw-bold">{{ userCounts().admins }}</div>
+          </div>
+          <svg cIcon name="cilUser" size="2xl" class="text-danger"></svg>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+  <c-col xs="6" md="3">
+    <c-card>
+      <c-card-body>
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small">Consultants</div>
+            <div class="fs-4 fw-bold">{{ userCounts().consultants }}</div>
+          </div>
+          <svg cIcon name="cilBriefcase" size="2xl" class="text-info"></svg>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+  <c-col xs="6" md="3">
+    <c-card>
+      <c-card-body>
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small">Clients</div>
+            <div class="fs-4 fw-bold">{{ userCounts().clients }}</div>
+          </div>
+          <svg cIcon name="cilUserFollow" size="2xl" class="text-success"></svg>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+<!-- Filters -->
+<c-card class="mb-4">
+  <c-card-body>
+    <c-row>
+      <c-col xs="12" md="6" class="mb-3 mb-md-0">
+        <c-input-group>
+          <span cInputGroupText>
+            <svg cIcon name="cilMagnifyingGlass"></svg>
+          </span>
+          <input
+            cFormControl
+            type="text"
+            placeholder="Search by name, email, or username..."
+            [value]="searchQuery()"
+            (input)="onSearchChange(($any($event.target)).value)"
+          />
+        </c-input-group>
+      </c-col>
+      <c-col xs="12" md="4">
+        <select
+          cFormControl
+          class="form-select"
+          [value]="selectedRole() ?? ''"
+          (change)="onRoleFilterChange(($any($event.target)).value || null)"
+        >
+          <option value="">All Roles</option>
+          <option [value]="'super_admin'">Super Admin</option>
+          <option [value]="'consultant'">Consultant</option>
+          <option [value]="'client'">Client</option>
+        </select>
+      </c-col>
+      <c-col xs="12" md="2">
+        <button
+          cButton
+          color="secondary"
+          variant="outline"
+          class="w-100"
+          (click)="clearFilters()"
+          [disabled]="!searchQuery() && !selectedRole()"
+        >
+          Clear Filters
+        </button>
+      </c-col>
+    </c-row>
+  </c-card-body>
+</c-card>
+
+<!-- Users Table -->
+<c-card>
+  <c-card-header>
+    <strong>All Users</strong>
+    @if (filteredUsers().length !== allUsers().length) {
+      <small class="text-muted ms-2">
+        (Showing {{ filteredUsers().length }} of {{ allUsers().length }})
+      </small>
+    }
+  </c-card-header>
+  <c-card-body>
+    @if (filteredUsers().length === 0) {
+      <div class="text-center py-5">
+        <svg cIcon name="cilUser" size="3xl" class="text-muted mb-3"></svg>
+        <h4>No users found</h4>
+        <p class="text-muted">
+          @if (searchQuery() || selectedRole()) {
+            Try adjusting your search or filter criteria
+          } @else {
+            Get started by adding your first user
+          }
+        </p>
+        @if (!searchQuery() && !selectedRole()) {
+          <button cButton color="primary" routerLink="/users/new">
+            <svg cIcon class="me-2" name="cilPlus"></svg>
+            Add New User
+          </button>
+        }
+      </div>
+    } @else {
+      <table cTable hover responsive>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Email</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of filteredUsers(); track user.id) {
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <img
+                    [src]="getAvatarUrl(user.avatar)"
+                    [alt]="user.name"
+                    class="rounded-circle me-2"
+                    style="width: 32px; height: 32px; object-fit: cover;"
+                    onerror="this.src='/assets/images/avatars/0.jpg'"
+                  />
+                  <span>{{ user.name }}</span>
+                </div>
+              </td>
+              <td>{{ user.email }}</td>
+              <td>
+                <code class="text-muted">{{ user.username }}</code>
+              </td>
+              <td>
+                <c-badge [color]="getRoleBadgeColor(user.role)">
+                  {{ getRoleLabel(user.role) }}
+                </c-badge>
+              </td>
+              <td>
+                <button
+                  cButton
+                  color="link"
+                  size="sm"
+                  [routerLink]="['/users', user.id, 'edit']"
+                  class="me-2"
+                >
+                  <svg cIcon name="cilPencil" size="sm"></svg>
+                  Edit
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </c-card-body>
+</c-card>
+

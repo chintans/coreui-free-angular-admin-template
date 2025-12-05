@@ -18,63 +18,28 @@
           </div>
         </c-card-header>
         <c-card-body>
-          <c-nav variant="tabs">
-            <c-nav-item>
-              <a
-                [active]="activeTab() === 0"
-                [cTabContent]="tabContent"
-                [tabPaneIdx]="0"
-                cNavLink
-                (click)="onTabChange(0)"
-              >
+          <c-tabs [activeItemKey]="activeTab()" (activeItemKeyChange)="onTabChange($event)">
+            <c-tabs-list variant="tabs">
+              <button cTab [itemKey]="0">
                 <svg cIcon class="me-2" name="cilChartLine"></svg>
                 Progress
-              </a>
-            </c-nav-item>
-            <c-nav-item>
-              <a
-                [active]="activeTab() === 1"
-                [cTabContent]="tabContent"
-                [tabPaneIdx]="1"
-                cNavLink
-                (click)="onTabChange(1)"
-              >
+              </button>
+              <button cTab [itemKey]="1">
                 <svg cIcon class="me-2" name="cilFile"></svg>
                 Report
-              </a>
-            </c-nav-item>
-            <c-nav-item>
-              <a
-                [active]="activeTab() === 2"
-                [cTabContent]="tabContent"
-                [tabPaneIdx]="2"
-                cNavLink
-                (click)="onTabChange(2)"
-              >
+              </button>
+              <button cTab [itemKey]="2">
                 <svg cIcon class="me-2" name="cilList"></svg>
                 Action Plan
-              </a>
-            </c-nav-item>
-            <c-nav-item>
-              <a
-                [active]="activeTab() === 3"
-                [cTabContent]="tabContent"
-                [tabPaneIdx]="3"
-                cNavLink
-                (click)="onTabChange(3)"
-              >
+              </button>
+              <button cTab [itemKey]="3">
                 <svg cIcon class="me-2" name="cilPeople"></svg>
                 Resources
-              </a>
-            </c-nav-item>
-          </c-nav>
-          <c-tab-content
-            #tabContent="cTabContent"
-            [activeTabPaneIdx]="activeTab()"
-            class="p-4 border border-top-0 rounded-bottom"
-          >
+              </button>
+            </c-tabs-list>
+            <c-tabs-content>
             <!-- Progress Tab -->
-            <c-tab-panel class="fade" [itemKey]="0">
+            <c-tab-panel class="p-4" [itemKey]="0">
               <h5 class="mb-4">Project Timeline</h5>
               <div class="position-relative">
                 @for (step of timelineSteps(); track step.title; let last = $last) {
@@ -116,7 +81,7 @@
             </c-tab-panel>
 
             <!-- Report Tab -->
-            <c-tab-panel class="fade" [itemKey]="1">
+            <c-tab-panel class="p-4" [itemKey]="1">
               <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5>Strategy Report</h5>
                 <button cButton color="primary" variant="outline" (click)="downloadReport()">
@@ -167,7 +132,7 @@
             </c-tab-panel>
 
             <!-- Action Plan Tab -->
-            <c-tab-panel class="fade" [itemKey]="2">
+            <c-tab-panel class="p-4" [itemKey]="2">
               <h5 class="mb-4">Strategic Recommendations</h5>
               @if (currentProject.strategicActions && currentProject.strategicActions.length > 0) {
                 <ul cListGroup>
@@ -206,7 +171,7 @@
             </c-tab-panel>
 
             <!-- Resources Tab -->
-            <c-tab-panel class="fade" [itemKey]="3">
+            <c-tab-panel class="p-4" [itemKey]="3">
               <h5 class="mb-4">Assigned Resources</h5>
               @if (assignedResources().length > 0) {
                 <c-row>
@@ -266,7 +231,8 @@
                 </div>
               }
             </c-tab-panel>
-          </c-tab-content>
+          </c-tabs-content>
+        </c-tabs>
         </c-card-body>
       </c-card>
     </c-col>
