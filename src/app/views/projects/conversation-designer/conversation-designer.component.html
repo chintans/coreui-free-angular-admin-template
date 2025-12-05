@@ -1,0 +1,135 @@
+<c-row>
+  <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-header>
+        <div class="d-flex align-items-center">
+          <svg cIcon name="cilPencil" class="me-2"></svg>
+          <strong>Step 2: Conversation Designer</strong>
+        </div>
+      </c-card-header>
+      <c-card-body>
+        <c-row>
+          <c-col md="8">
+            <div class="mb-3">
+              <label cLabel>Search Topics</label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <svg cIcon name="cilMagnifyingGlass"></svg>
+                </span>
+                <input
+                  cFormControl
+                  placeholder="Search for discussion points..."
+                  [value]="searchQuery()"
+                  (input)="searchQuery.set($any($event.target).value)"
+                />
+              </div>
+            </div>
+
+            <h5 class="mb-3">Available Topics</h5>
+            <ul cListGroup class="mb-4" style="max-height: 300px; overflow-y: auto;">
+              @for (topic of filteredTopics(); track topic.id) {
+                <li cListGroupItem class="d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                    <svg cIcon [name]="topic.icon" class="me-2 text-primary"></svg>
+                    <div>
+                      <strong>{{ topic.title }}</strong>
+                      @if (topic.description) {
+                        <p class="small text-muted mb-0">{{ topic.description }}</p>
+                      }
+                    </div>
+                  </div>
+                  <button cButton color="primary" size="sm" (click)="addTopic(topic)">
+                    <svg cIcon name="cilPlus"></svg>
+                  </button>
+                </li>
+              }
+            </ul>
+
+            @if (selectedTopics().length > 0) {
+              <div class="mb-4">
+                <h5 class="mb-3">Selected Topics</h5>
+                <div class="d-flex flex-wrap gap-2">
+                  @for (topic of selectedTopics(); track topic.id) {
+                    <c-badge color="primary" class="p-2 d-flex align-items-center gap-2">
+                      <svg cIcon [name]="topic.icon" size="sm"></svg>
+                      {{ topic.title }}
+                      <button
+                        type="button"
+                        class="btn-close btn-close-white"
+                        (click)="removeTopic(topic)"
+                        aria-label="Remove"
+                      ></button>
+                    </c-badge>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <button cButton color="secondary" variant="outline" routerLink="/projects">
+                Cancel
+              </button>
+              <button
+                cButton
+                color="primary"
+                (click)="startRecording()"
+                [disabled]="selectedTopics().length === 0"
+              >
+                Start Recording
+                <svg cIcon class="ms-2" name="cilMediaRecord"></svg>
+              </button>
+            </div>
+          </c-col>
+
+          <c-col md="4">
+            <c-card class="bg-light border-0">
+              <c-card-body>
+                <h5 class="card-title text-primary mb-3">
+                  <svg cIcon class="me-2" name="cilLightbulb"></svg>
+                  AI Suggestions
+                </h5>
+
+                @if (suggestions().length > 0) {
+                  @for (suggestion of suggestions(); track suggestion) {
+                    <c-alert color="info" class="d-flex justify-content-between align-items-center p-2 mb-2">
+                      <small class="flex-grow-1">{{ suggestion }}</small>
+                      <button
+                        cButton
+                        color="link"
+                        size="sm"
+                        class="p-0 ms-2"
+                        (click)="addSuggestion(suggestion)"
+                      >
+                        <svg cIcon name="cilPlus"></svg>
+                      </button>
+                    </c-alert>
+                  }
+                }
+
+                <div class="d-grid mt-3">
+                  <button
+                    cButton
+                    color="primary"
+                    variant="outline"
+                    size="sm"
+                    (click)="generateNew()"
+                    [disabled]="isGenerating()"
+                  >
+                    @if (isGenerating()) {
+                      <c-spinner size="sm" class="me-2"></c-spinner>
+                      Generating...
+                    } @else {
+                      <svg cIcon class="me-2" name="cilReload"></svg>
+                      Generate New
+                    }
+                  </button>
+                </div>
+              </c-card-body>
+            </c-card>
+          </c-col>
+        </c-row>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+

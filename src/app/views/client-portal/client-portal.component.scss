@@ -1,0 +1,43 @@
+.report-content {
+  h6 {
+    font-weight: 600;
+    color: #1e40af;
+  }
+
+  .bg-light {
+    background-color: #f8f9fa;
+    border-left: 3px solid #1e40af;
+  }
+
+  ul.list-unstyled {
+    li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #e9ecef;
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+}
+
+c-card {
+  transition: box-shadow 0.2s ease-in-out;
+
+  &:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+}
+
+c-list-group-item {
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #f8f9fa;
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+

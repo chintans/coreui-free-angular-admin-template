@@ -1,126 +1,148 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
-  CardComponent, CardBodyComponent, CardHeaderComponent,
-  ButtonDirective, GridModule, FormModule, BadgeComponent,
-  ModalModule, ButtonCloseDirective, ModalComponent, ModalHeaderComponent, ModalBodyComponent, ModalFooterComponent
+  CardComponent,
+  CardBodyComponent,
+  CardHeaderComponent,
+  ButtonDirective,
+  GridModule,
+  FormModule,
+  ModalModule,
+  ButtonCloseDirective,
+  ModalComponent,
+  ModalHeaderComponent,
+  ModalBodyComponent,
+  ModalFooterComponent,
+  RowComponent,
+  ColComponent
 } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
+import { ProjectService } from '../../../core/services/project.service';
+import { ReportData } from '../../../core/models/project.models';
 
 @Component({
   selector: 'app-report-review',
   standalone: true,
   imports: [
-    CommonModule, FormsModule,
-    CardComponent, CardBodyComponent, CardHeaderComponent,
-    ButtonDirective, GridModule, FormModule, BadgeComponent,
-    ModalModule, ButtonCloseDirective, ModalComponent, ModalHeaderComponent, ModalBodyComponent, ModalFooterComponent,
+    CommonModule,
+    ReactiveFormsModule,
+    CardComponent,
+    CardBodyComponent,
+    CardHeaderComponent,
+    ButtonDirective,
+    GridModule,
+    FormModule,
+    ModalModule,
+    ButtonCloseDirective,
+    ModalComponent,
+    ModalHeaderComponent,
+    ModalBodyComponent,
+    ModalFooterComponent,
+    RowComponent,
+    ColComponent,
     IconDirective
   ],
-  template: `
-    <c-row>
-      <c-col xs="12">
-        <c-card class="mb-4">
-          <c-card-header class="d-flex justify-content-between align-items-center">
-            <strong>Step 7: Report Review & Editor</strong>
-            <div>
-              <button cButton [color]="isEditing ? 'success' : 'secondary'" variant="outline" class="me-2" (click)="toggleEdit()">
-                <svg cIcon class="me-2" [name]="isEditing ? 'cilSave' : 'cilPencil'"></svg>
-                {{ isEditing ? 'Save Changes' : 'Edit Report' }}
-              </button>
-              <button cButton color="primary" (click)="toggleShareModal()">
-                <svg cIcon class="me-2" name="cilShareBoxed"></svg>
-                Share for Review
-              </button>
-            </div>
-          </c-card-header>
-          <c-card-body>
-            <div class="mb-4">
-              <h4 class="mb-3">Executive Summary</h4>
-              @if (isEditing) {
-                <textarea cFormControl rows="4" [(ngModel)]="reportContent.executiveSummary"></textarea>
-              } @else {
-                <p class="lead">{{ reportContent.executiveSummary }}</p>
-              }
-            </div>
-
-            <div class="mb-4">
-              <h4 class="mb-3">Strategic Recommendations</h4>
-              @if (isEditing) {
-                <textarea cFormControl rows="6" [(ngModel)]="reportContent.recommendations"></textarea>
-              } @else {
-                <div class="bg-light p-3 rounded">
-                  <pre class="mb-0" style="white-space: pre-wrap; font-family: inherit;">{{ reportContent.recommendations }}</pre>
-                </div>
-              }
-            </div>
-
-            <hr class="my-4">
-
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="text-muted">Last saved: Just now</span>
-              <button cButton color="secondary" variant="ghost" (click)="downloadPdf()">
-                <svg cIcon class="me-2" name="cilCloudDownload"></svg>
-                Download PDF
-              </button>
-            </div>
-          </c-card-body>
-        </c-card>
-      </c-col>
-    </c-row>
-
-    <c-modal [visible]="showShareModal" (visibleChange)="toggleShareModal()">
-      <c-modal-header>
-        <h5 cModalTitle>Share Report</h5>
-        <button cButtonClose (click)="toggleShareModal()"></button>
-      </c-modal-header>
-      <c-modal-body>
-        <div class="mb-3">
-          <label cLabel>Invite Reviewers (Email)</label>
-          <input cFormControl placeholder="colleague@example.com" />
-        </div>
-        <div class="mb-3">
-          <label cLabel>Message (Optional)</label>
-          <textarea cFormControl rows="3" placeholder="Please review the attached strategy report..."></textarea>
-        </div>
-      </c-modal-body>
-      <c-modal-footer>
-        <button cButton color="secondary" (click)="toggleShareModal()">Cancel</button>
-        <button cButton color="primary" (click)="shareReport()">Send Invitation</button>
-      </c-modal-footer>
-    </c-modal>
-  `
+  templateUrl: './report-review.component.html',
+  styleUrls: ['./report-review.component.scss']
 })
-export class ReportReviewComponent {
-  private router = inject(Router);
+export class ReportReviewComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly projectService = inject(ProjectService);
+  private readonly fb = inject(FormBuilder);
 
-  isEditing = false;
-  showShareModal = false;
+  projectId = signal<string>('');
+  isEditing = signal(false);
+  showShareModal = signal(false);
 
-  reportContent = {
-    executiveSummary: 'This strategy outlines a comprehensive approach to entering the enterprise SaaS market, focusing on solving key pain points around onboarding complexity.',
-    recommendations: '1. Simplify onboarding flow.\n2. Introduce tiered support for enterprise clients.\n3. Launch targeted content marketing campaign.'
-  };
+  reportContent = signal({
+    executiveSummary: '',
+    recommendations: ''
+  });
 
-  toggleEdit() {
-    this.isEditing = !this.isEditing;
+  shareForm = this.fb.group({
+    emails: ['', [Validators.required, Validators.email]],
+    message: ['']
+  });
+
+  ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      const id = params['id'];
+      this.projectId.set(id);
+      const project = this.projectService.getProjectById(id);
+      if (project?.report) {
+        this.loadReport(project.report);
+      } else {
+        this.loadDefaultReport();
+      }
+    });
   }
 
-  toggleShareModal() {
-    this.showShareModal = !this.showShareModal;
+  private loadReport(report: ReportData): void {
+    this.reportContent.set({
+      executiveSummary: report.executiveSummary,
+      recommendations: report.recommendations.join('\n')
+    });
   }
 
-  shareReport() {
-    this.toggleShareModal();
-    // Mock share
-    alert('Report shared successfully!');
-    this.router.navigate(['/projects', '1']);
+  private loadDefaultReport(): void {
+    this.reportContent.set({
+      executiveSummary: 'This strategy outlines a comprehensive approach to entering the enterprise SaaS market, focusing on solving key pain points around onboarding complexity. Our research indicates significant opportunities for growth through simplified user experiences and targeted market positioning.',
+      recommendations: '1. Simplify onboarding flow to reduce time-to-value by 40%\n2. Introduce tiered support for enterprise clients\n3. Launch targeted content marketing campaign\n4. Develop strategic partnerships with key industry players\n5. Implement data-driven customer success program'
+    });
   }
 
-  downloadPdf() {
-    // Mock download
-    alert('Downloading PDF...');
+  toggleEdit(): void {
+    if (this.isEditing()) {
+      this.saveReport();
+    }
+    this.isEditing.update(val => !val);
+  }
+
+  private saveReport(): void {
+    if (!this.projectId()) {
+      return;
+    }
+
+    const reportData: ReportData = {
+      executiveSummary: this.reportContent().executiveSummary,
+      recommendations: this.reportContent().recommendations.split('\n').filter(r => r.trim()),
+      sections: []
+    };
+
+    this.projectService.setReport(this.projectId(), reportData);
+  }
+
+  toggleShareModal(): void {
+    this.showShareModal.update(val => !val);
+    if (!this.showShareModal()) {
+      this.shareForm.reset();
+    }
+  }
+
+  shareReport(): void {
+    if (this.shareForm.valid && this.projectId()) {
+      const emails = this.shareForm.value.emails?.split(',').map(e => e.trim()) ?? [];
+      const message = this.shareForm.value.message ?? '';
+
+      this.projectService.shareReport(this.projectId(), emails, message);
+      this.toggleShareModal();
+      this.router.navigate(['/projects', this.projectId()]);
+    }
+  }
+
+  downloadPdf(): void {
+    // In production, this would generate and download a PDF
+    alert('PDF download functionality will be implemented with a PDF generation library.');
+  }
+
+  updateExecutiveSummary(value: string): void {
+    this.reportContent.update(content => ({ ...content, executiveSummary: value }));
+  }
+
+  updateRecommendations(value: string): void {
+    this.reportContent.update(content => ({ ...content, recommendations: value }));
   }
 }

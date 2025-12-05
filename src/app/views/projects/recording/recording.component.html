@@ -1,0 +1,134 @@
+<c-row>
+  <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-header>
+        <div class="d-flex align-items-center">
+          <svg cIcon name="cilMediaRecord" class="me-2"></svg>
+          <strong>Step 3: Recording & Transcription</strong>
+        </div>
+      </c-card-header>
+      <c-card-body>
+        <div class="text-center mb-4">
+          <h1 class="display-1 mb-3" [class.text-warning]="isRecording() && !isPaused()">
+            {{ formatTime(timer()) }}
+          </h1>
+          @if (isRecording() && !isPaused()) {
+            <c-badge color="danger" class="mb-3">
+              <svg cIcon name="cilMediaRecord" class="me-1"></svg>
+              Recording
+            </c-badge>
+          } @else if (isPaused()) {
+            <c-badge color="warning" class="mb-3">
+              <svg cIcon name="cilPause" class="me-1"></svg>
+              Paused
+            </c-badge>
+          }
+          <div class="d-flex justify-content-center gap-3 mt-3">
+            <button
+              cButton
+              [color]="isRecording() && !isPaused() ? 'warning' : 'success'"
+              size="lg"
+              (click)="toggleRecording()"
+            >
+              <svg cIcon class="me-2" [name]="isRecording() && !isPaused() ? 'cilPause' : 'cilMediaPlay'"></svg>
+              {{ isRecording() && !isPaused() ? 'Pause' : isRecording() ? 'Resume' : 'Start Recording' }}
+            </button>
+            <button
+              cButton
+              color="danger"
+              size="lg"
+              (click)="finishRecording()"
+              [disabled]="!isRecording() && timer() === 0"
+            >
+              <svg cIcon class="me-2" name="cilMediaStop"></svg>
+              Stop & Transcribe
+            </button>
+          </div>
+        </div>
+
+        <c-row>
+          <c-col md="8" class="mx-auto">
+            <c-card class="bg-light border-0">
+              <c-card-header>
+                <strong>Live Transcript</strong>
+              </c-card-header>
+              <c-card-body style="height: 400px; overflow-y: auto;">
+                @if (transcript().length === 0) {
+                  <div class="text-center text-muted mt-5">
+                    <svg cIcon name="cilMicrophone" size="3xl" class="mb-3"></svg>
+                    <p><em>Click "Start Recording" to begin capturing the conversation...</em></p>
+                  </div>
+                } @else {
+                  @for (line of transcript(); track $index) {
+                    <div class="mb-3">
+                      <div class="d-flex align-items-center mb-1">
+                        <c-badge
+                          [color]="line.speaker === 'Consultant' ? 'primary' : 'info'"
+                          class="me-2"
+                        >
+                          {{ line.speaker }}
+                        </c-badge>
+                        <small class="text-muted">{{ line.time }}</small>
+                      </div>
+                      <p class="mb-0">{{ line.text }}</p>
+                    </div>
+                  }
+                }
+              </c-card-body>
+            </c-card>
+
+            <div class="mt-3 d-flex gap-2 justify-content-center flex-wrap">
+              <button
+                cButton
+                color="info"
+                variant="outline"
+                size="sm"
+                (click)="addTag('Pain Point')"
+                [disabled]="!isRecording() || transcript().length === 0"
+              >
+                <svg cIcon class="me-1" name="cilTag"></svg>
+                Pain Point
+              </button>
+              <button
+                cButton
+                color="success"
+                variant="outline"
+                size="sm"
+                (click)="addTag('Opportunity')"
+                [disabled]="!isRecording() || transcript().length === 0"
+              >
+                <svg cIcon class="me-1" name="cilTag"></svg>
+                Opportunity
+              </button>
+              <button
+                cButton
+                color="warning"
+                variant="outline"
+                size="sm"
+                (click)="addTag('Insight')"
+                [disabled]="!isRecording() || transcript().length === 0"
+              >
+                <svg cIcon class="me-1" name="cilTag"></svg>
+                Insight
+              </button>
+            </div>
+
+            @if (tags().length > 0) {
+              <div class="mt-3">
+                <h6>Tags Added:</h6>
+                <div class="d-flex flex-wrap gap-2">
+                  @for (tag of tags(); track $index) {
+                    <c-badge [color]="tag.type === 'Pain Point' ? 'info' : tag.type === 'Opportunity' ? 'success' : 'warning'">
+                      {{ tag.type }}
+                    </c-badge>
+                  }
+                </div>
+              </div>
+            }
+          </c-col>
+        </c-row>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+

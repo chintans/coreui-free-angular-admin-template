@@ -1,127 +1,139 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
-  CardComponent, CardBodyComponent, CardHeaderComponent,
-  ButtonDirective, GridModule, FormModule, ListGroupDirective, ListGroupItemDirective,
-  BadgeComponent, AlertComponent
+  CardComponent,
+  CardBodyComponent,
+  CardHeaderComponent,
+  ButtonDirective,
+  GridModule,
+  FormModule,
+  ListGroupDirective,
+  ListGroupItemDirective,
+  BadgeComponent,
+  AlertComponent,
+  RowComponent,
+  ColComponent,
+  SpinnerComponent
 } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
+import { ProjectService } from '../../../core/services/project.service';
+import { ConversationTopic } from '../../../core/models/project.models';
 
 @Component({
   selector: 'app-conversation-designer',
   standalone: true,
   imports: [
-    CommonModule, RouterLink,
-    CardComponent, CardBodyComponent, CardHeaderComponent,
-    ButtonDirective, GridModule, FormModule, ListGroupDirective, ListGroupItemDirective,
-    BadgeComponent, AlertComponent, IconDirective
+    CommonModule,
+    RouterLink,
+    CardComponent,
+    CardBodyComponent,
+    CardHeaderComponent,
+    ButtonDirective,
+    GridModule,
+    FormModule,
+    ListGroupDirective,
+    ListGroupItemDirective,
+    BadgeComponent,
+    AlertComponent,
+    RowComponent,
+    ColComponent,
+    SpinnerComponent,
+    IconDirective
   ],
-  template: `
-    <c-row>
-      <c-col xs="12">
-        <c-card class="mb-4">
-          <c-card-header>
-            <strong>Step 2: Conversation Designer</strong>
-          </c-card-header>
-          <c-card-body>
-            <c-row>
-              <c-col md="8">
-                <div class="mb-3">
-                  <label cLabel>Search Topics</label>
-                  <div class="input-group">
-                    <span class="input-group-text">
-                      <svg cIcon name="cilSearch"></svg>
-                    </span>
-                    <input cFormControl placeholder="Search for discussion points..." />
-                  </div>
-                </div>
-
-                <h5 class="mb-3">Discussion Topics</h5>
-                <ul cListGroup class="mb-4">
-                  @for (topic of topics; track topic) {
-                    <li cListGroupItem class="d-flex justify-content-between align-items-center">
-                      <div>
-                        <svg cIcon class="me-2" name="cilList"></svg>
-                        {{ topic }}
-                      </div>
-                      <button cButton color="danger" variant="ghost" size="sm">
-                        <svg cIcon name="cilTrash"></svg>
-                      </button>
-                    </li>
-                  }
-                </ul>
-
-                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                  <button cButton color="secondary" variant="outline">Save Draft</button>
-                  <button cButton color="primary" (click)="startRecording()">
-                    Start Recording
-                    <svg cIcon class="ms-2" name="cilMicrophone"></svg>
-                  </button>
-                </div>
-              </c-col>
-
-              <c-col md="4">
-                <c-card class="bg-light border-0">
-                  <c-card-body>
-                    <h5 class="card-title text-primary">
-                      <svg cIcon class="me-2" name="cilLightbulb"></svg>
-                      AI Suggestions
-                    </h5>
-                    <p class="small text-body-secondary">Based on "Go-To-Market Strategy"</p>
-
-                    @for (suggestion of suggestions; track suggestion) {
-                      <c-alert color="info" class="d-flex justify-content-between align-items-center p-2 mb-2">
-                        <small>{{ suggestion }}</small>
-                        <button cButton color="link" size="sm" class="p-0 ms-2" (click)="addTopic(suggestion)">
-                          <svg cIcon name="cilPlus"></svg>
-                        </button>
-                      </c-alert>
-                    }
-
-                    <div class="d-grid mt-3">
-                      <button cButton color="primary" variant="outline" size="sm" (click)="generateNew()">
-                        <svg cIcon class="me-2" name="cilReload"></svg>
-                        Generate New
-                      </button>
-                    </div>
-                  </c-card-body>
-                </c-card>
-              </c-col>
-            </c-row>
-          </c-card-body>
-        </c-card>
-      </c-col>
-    </c-row>
-  `
+  templateUrl: './conversation-designer.component.html',
+  styleUrls: ['./conversation-designer.component.scss']
 })
-export class ConversationDesignerComponent {
-  private router = inject(Router);
+export class ConversationDesignerComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly projectService = inject(ProjectService);
 
-  topics = [
-    'Market Overview',
-    'Value Proposition',
-    'Competitive Landscape',
-    'Customer Pain Points'
-  ];
+  projectId = signal<string>('');
+  searchQuery = signal('');
+  topics = signal<ConversationTopic[]>([
+    { id: '1', title: 'Market Overview', icon: 'cilChartLine', description: 'Understand the target market' },
+    { id: '2', title: 'Value Proposition', icon: 'cilStar', description: 'Define unique value' },
+    { id: '3', title: 'Competitive Landscape', icon: 'cilPeople', description: 'Analyze competitors' },
+    { id: '4', title: 'Customer Pain Points', icon: 'cilWarning', description: 'Identify challenges' }
+  ]);
+  selectedTopics = signal<ConversationTopic[]>([]);
+  suggestions = signal<string[]>([]);
+  isGenerating = signal(false);
 
-  suggestions = [
-    'Would you like to include competitive positioning?',
-    'Ask about budget constraints.',
-    'Explore decision-making process.'
-  ];
-
-  addTopic(topic: string) {
-    this.topics.push(topic);
-    this.suggestions = this.suggestions.filter(s => s !== topic);
+  ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      const id = params['id'];
+      this.projectId.set(id);
+      const project = this.projectService.getProjectById(id);
+      if (project) {
+        this.loadSuggestions();
+      }
+    });
   }
 
-  generateNew() {
-    // Mock AI generation
-    this.suggestions.push('New AI Suggestion ' + (this.suggestions.length + 1));
+  filteredTopics(): ConversationTopic[] {
+    const query = this.searchQuery().toLowerCase();
+    if (!query) {
+      return this.topics();
+    }
+    return this.topics().filter(t =>
+      t.title.toLowerCase().includes(query) ||
+      t.description?.toLowerCase().includes(query)
+    );
   }
 
-  startRecording() {
-    this.router.navigate(['/projects', '1', 'recording']);
+  addTopic(topic: ConversationTopic): void {
+    this.selectedTopics.update(topics => [...topics, topic]);
+    this.topics.update(topics => topics.filter(t => t.id !== topic.id));
+    this.suggestions.update(sugs => sugs.filter(s => !s.includes(topic.title)));
+  }
+
+  removeTopic(topic: ConversationTopic): void {
+    this.selectedTopics.update(topics => topics.filter(t => t.id !== topic.id));
+    this.topics.update(topics => [...topics, topic]);
+  }
+
+  generateNew(): void {
+    this.isGenerating.set(true);
+    // Simulate AI generation
+    setTimeout(() => {
+      const newSuggestions = [
+        'Would you like to include competitive positioning?',
+        'Ask about budget constraints and timeline.',
+        'Explore decision-making process and stakeholders.',
+        'Discuss go-to-market channels and distribution.'
+      ];
+      this.suggestions.update(sugs => [...sugs, ...newSuggestions]);
+      this.isGenerating.set(false);
+    }, 1500);
+  }
+
+  addSuggestion(suggestion: string): void {
+    const newTopic: ConversationTopic = {
+      id: Date.now().toString(),
+      title: suggestion,
+      icon: 'cilLightbulb',
+      description: 'AI suggested topic'
+    };
+    this.addTopic(newTopic);
+    this.suggestions.update(sugs => sugs.filter(s => s !== suggestion));
+  }
+
+  startRecording(): void {
+    if (this.projectId()) {
+      this.projectService.updateProjectStep(this.projectId(), 'recording');
+      this.router.navigate(['/projects', this.projectId(), 'recording']);
+    }
+  }
+
+  private loadSuggestions(): void {
+    // Initial AI suggestions based on conversation type
+    const initialSuggestions = [
+      'Would you like to include competitive positioning?',
+      'Ask about budget constraints.',
+      'Explore decision-making process.'
+    ];
+    this.suggestions.set(initialSuggestions);
   }
 }

@@ -1,0 +1,18 @@
+.conversation-type-card {
+  transition: all 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    border-color: var(--cui-primary) !important;
+    background-color: var(--cui-primary-bg-subtle) !important;
+  }
+
+  input[type='radio']:checked + label {
+    cursor: pointer;
+  }
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+

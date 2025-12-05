@@ -1,0 +1,140 @@
+<c-row>
+  <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-header>
+        <div class="d-flex align-items-center">
+          <svg cIcon name="cilPlus" class="me-2"></svg>
+          <strong>Step 1: New Project Setup</strong>
+        </div>
+      </c-card-header>
+      <c-card-body>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <div class="mb-4">
+            <label cLabel for="projectName">Project Name</label>
+            <input
+              cFormControl
+              id="projectName"
+              formControlName="projectName"
+              placeholder="Enter project name"
+              [class.is-invalid]="form.get('projectName')?.invalid && form.get('projectName')?.touched"
+            />
+            @if (form.get('projectName')?.invalid && form.get('projectName')?.touched) {
+              <div class="invalid-feedback">
+                @if (form.get('projectName')?.errors?.['required']) {
+                  Project name is required
+                } @else if (form.get('projectName')?.errors?.['minlength']) {
+                  Project name must be at least 3 characters
+                }
+              </div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label cLabel for="client">Client / Company</label>
+            <select
+              cSelect
+              id="client"
+              formControlName="client"
+              [class.is-invalid]="form.get('client')?.invalid && form.get('client')?.touched"
+            >
+              <option value="">Select Client</option>
+              <option value="Acme Corp">Acme Corp</option>
+              <option value="Globex Inc">Globex Inc</option>
+              <option value="Soylent Corp">Soylent Corp</option>
+              <option value="Initech">Initech</option>
+              <option value="Umbrella Corp">Umbrella Corp</option>
+            </select>
+            @if (form.get('client')?.invalid && form.get('client')?.touched) {
+              <div class="invalid-feedback">Please select a client</div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <label cLabel for="referenceDocuments">Reference Documents</label>
+            <div class="border rounded p-3 mb-2" [class.bg-light]="selectedFiles.length === 0">
+              <input
+                type="file"
+                id="referenceDocuments"
+                class="form-control"
+                multiple
+                accept=".pdf,.doc,.docx"
+                (change)="onFileSelected($event)"
+              />
+              <div class="form-text mt-2">Upload PDFs or DOCX files for context (optional)</div>
+            </div>
+            @if (selectedFiles.length > 0) {
+              <div class="mt-2">
+                @for (file of selectedFiles; track file.name) {
+                  <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                    <div class="d-flex align-items-center">
+                      <svg cIcon name="cilFile" class="me-2 text-primary"></svg>
+                      <span class="small" [textContent]="file.name"></span>
+                      <span class="text-muted ms-2 small">(<span [textContent]="(file.size / 1024).toFixed(1)"></span> KB)</span>
+                    </div>
+                    <button
+                      type="button"
+                      cButton
+                      color="link"
+                      size="sm"
+                      (click)="removeFile($index)"
+                      class="text-danger"
+                    >
+                      <svg cIcon name="cilX"></svg>
+                    </button>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+
+          <div class="mb-4">
+            <h5 class="mb-3">Conversation Type</h5>
+            <c-row>
+              @for (type of conversationTypes; track type.value) {
+                <c-col xs="12" md="6" class="mb-3">
+                  <label
+                    class="conversation-type-card p-3 border rounded cursor-pointer d-block mb-0"
+                    [class.border-primary]="form.get('conversationType')?.value === type.value"
+                    [class.bg-primary-subtle]="form.get('conversationType')?.value === type.value"
+                    [attr.for]="'type' + type.value"
+                  >
+                    <c-form-check>
+                      <input
+                        cFormCheckInput
+                        type="radio"
+                        [value]="type.value"
+                        formControlName="conversationType"
+                        [id]="'type' + type.value"
+                        [attr.aria-labelledby]="'type' + type.value + '-label'"
+                      />
+                      <span cFormCheckLabel class="w-100">
+                        <div class="d-flex align-items-start">
+                          <svg cIcon [name]="type.icon" class="me-2 mt-1"></svg>
+                          <div>
+                            <strong [textContent]="type.label"></strong>
+                            <p class="small text-muted mb-0" [textContent]="type.description"></p>
+                          </div>
+                        </div>
+                      </span>
+                    </c-form-check>
+                  </label>
+                </c-col>
+              }
+            </c-row>
+          </div>
+
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+            <button cButton color="secondary" type="button" routerLink="/projects">
+              Cancel
+            </button>
+            <button cButton color="primary" type="submit" [disabled]="form.invalid">
+              Next: Design Conversation
+              <svg cIcon class="ms-2" name="cilArrowRight"></svg>
+            </button>
+          </div>
+        </form>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+

@@ -1,0 +1,111 @@
+<c-row>
+  <c-col xs="12">
+    <c-card class="mb-4">
+      <c-card-header>
+        <div class="d-flex align-items-center">
+          <svg cIcon name="cilChart" class="me-2"></svg>
+          <strong>Step 6: Strategy Builder</strong>
+        </div>
+      </c-card-header>
+      <c-card-body>
+        <c-row>
+          <c-col md="8">
+            <h5 class="mb-4">Strategy Sections</h5>
+            @for (section of sections(); track section.id; let i = $index) {
+              <c-card class="mb-3">
+                <c-card-header class="d-flex justify-content-between align-items-center">
+                  <strong>{{ section.title }}</strong>
+                  <div class="d-flex align-items-center gap-2">
+                    <c-badge [color]="getStatusColor(section.status)">
+                      {{ section.status }}
+                    </c-badge>
+                    <button
+                      cButton
+                      color="secondary"
+                      variant="ghost"
+                      size="sm"
+                      (click)="regenerateSection(i)"
+                      [disabled]="isRegenerating()[i]"
+                    >
+                      @if (isRegenerating()[i]) {
+                        <c-spinner size="sm"></c-spinner>
+                      } @else {
+                        <svg cIcon name="cilReload"></svg>
+                      }
+                    </button>
+                  </div>
+                </c-card-header>
+                <c-card-body>
+                  @if (section.content) {
+                    <p class="mb-0">{{ section.content }}</p>
+                  } @else {
+                    <p class="mb-0 text-muted">
+                      <em>Pending generation... Click regenerate to generate content.</em>
+                    </p>
+                  }
+                </c-card-body>
+              </c-card>
+            }
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+              <button cButton color="secondary" variant="outline" routerLink="/projects">
+                Back to Projects
+              </button>
+              <button cButton color="primary" size="lg" (click)="saveAndContinue()">
+                Save & Continue
+                <svg cIcon class="ms-2" name="cilArrowRight"></svg>
+              </button>
+            </div>
+          </c-col>
+
+          <c-col md="4">
+            <c-card class="bg-light border-0">
+              <c-card-body>
+                <h5 class="card-title text-primary mb-3">
+                  <svg cIcon class="me-2" name="cilSettings"></svg>
+                  Configuration
+                </h5>
+                <div class="mb-3">
+                  <label class="form-label small fw-bold">Tone of Voice</label>
+                  <select class="form-select form-select-sm">
+                    <option>Professional</option>
+                    <option>Persuasive</option>
+                    <option>Technical</option>
+                    <option>Conversational</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-bold">Format</label>
+                  <select class="form-select form-select-sm">
+                    <option>Standard Report</option>
+                    <option>Presentation Deck</option>
+                    <option>Memo</option>
+                    <option>Executive Brief</option>
+                  </select>
+                </div>
+                <div class="mt-4">
+                  <h6 class="small fw-bold mb-2">Section Status</h6>
+                  <ul class="list-unstyled small">
+                    <li class="mb-1">
+                      <c-badge color="success" class="me-2">Drafted</c-badge>
+                      Ready for review
+                    </li>
+                    <li class="mb-1">
+                      <c-badge color="info" class="me-2">Auto-filled</c-badge>
+                      AI generated
+                    </li>
+                    <li class="mb-1">
+                      <c-badge color="secondary" class="me-2">Pending</c-badge>
+                      Needs generation
+                    </li>
+                  </ul>
+                </div>
+              </c-card-body>
+            </c-card>
+          </c-col>
+        </c-row>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+

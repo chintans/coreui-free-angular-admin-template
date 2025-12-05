@@ -1,0 +1,300 @@
+<c-row>
+  <c-col xs="12">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h3 class="mb-1">Actionable Marketplace</h3>
+        <p class="text-muted small mb-0">Connect strategy to execution with curated service providers</p>
+      </div>
+      <button cButton color="primary" (click)="toggleResourceModal()">
+        <svg cIcon class="me-2" name="cilPlus"></svg>
+        Add My Own Resource
+      </button>
+    </div>
+
+    <!-- Filters Section -->
+    <c-card class="mb-4">
+      <c-card-body>
+        <c-row class="g-3">
+          <c-col xs="12" md="6">
+            <label cLabel class="mb-2">Search Providers</label>
+            <c-input-group>
+              <span cInputGroupText>
+                <svg cIcon name="cilMagnifyingGlass"></svg>
+              </span>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Search by name, skills, or description..."
+                [value]="searchQuery()"
+                (input)="onSearchChange($event)"
+              />
+            </c-input-group>
+          </c-col>
+          <c-col xs="12" md="6">
+            <label cLabel class="mb-2">Filter by Category</label>
+            <select
+              class="form-select"
+              [value]="selectedCategory() ?? ''"
+              (change)="onCategoryChange($any($event.target).value || null)"
+            >
+              <option value="">All Categories</option>
+              @for (category of availableCategories(); track category) {
+                <option [value]="category">{{ category }}</option>
+              }
+            </select>
+          </c-col>
+        </c-row>
+        @if (selectedCategory()) {
+          <div class="mt-3">
+            <c-badge color="info" class="me-2">
+              <svg cIcon name="cilFilter" size="sm" class="me-1"></svg>
+              {{ selectedCategory() }}
+            </c-badge>
+            <button
+              cButton
+              color="link"
+              size="sm"
+              class="p-0"
+              (click)="onCategoryChange(null)"
+            >
+              Clear filter
+            </button>
+          </div>
+        }
+      </c-card-body>
+    </c-card>
+
+    <!-- Providers Grid -->
+    @if (filteredProviders().length > 0) {
+      <c-row>
+        @for (provider of filteredProviders(); track provider.id) {
+          <c-col xs="12" md="6" lg="4" class="mb-4">
+            <c-card class="h-100">
+              <c-card-body class="text-center">
+                @if (provider.avatar) {
+                  <c-avatar
+                    [src]="'./assets/images/avatars/' + provider.avatar"
+                    size="xl"
+                    class="mb-3"
+                  ></c-avatar>
+                } @else {
+                  <div
+                    class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white mb-3"
+                    style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;"
+                  >
+                    {{ provider.name.charAt(0) }}
+                  </div>
+                }
+                <h5 class="card-title mb-2">{{ provider.name }}</h5>
+                <c-badge
+                  [color]="provider.type === 'Agency' ? 'primary' : 'success'"
+                  class="mb-3"
+                >
+                  {{ provider.type }}
+                </c-badge>
+                @if (provider.description) {
+                  <p class="text-muted small mb-3">{{ provider.description }}</p>
+                }
+                <div class="mb-3">
+                  @for (skill of provider.skills; track skill) {
+                    <c-badge color="info" class="me-1 mb-1">{{ skill }}</c-badge>
+                  }
+                </div>
+                <div class="d-flex justify-content-center gap-3 mb-3">
+                  <div class="d-flex align-items-center">
+                    <svg cIcon name="cilStar" class="text-warning me-1"></svg>
+                    <strong>{{ provider.rating }}</strong>
+                  </div>
+                  <div class="d-flex align-items-center">
+                    <svg cIcon name="cilDollar" class="text-success me-1"></svg>
+                    <strong>{{ provider.rate }}</strong>
+                  </div>
+                </div>
+                <button
+                  cButton
+                  color="primary"
+                  variant="outline"
+                  class="w-100"
+                  (click)="openConnectModal(provider.id)"
+                >
+                  <svg cIcon name="cilUserPlus" class="me-2"></svg>
+                  Connect
+                </button>
+              </c-card-body>
+            </c-card>
+          </c-col>
+        }
+      </c-row>
+    } @else {
+      <c-card>
+        <c-card-body class="text-center py-5">
+          <svg cIcon name="cilInbox" size="3xl" class="text-muted mb-3"></svg>
+          <h5 class="text-muted">No providers found</h5>
+          <p class="text-muted">
+            @if (searchQuery() || selectedCategory()) {
+              Try adjusting your search or filter criteria.
+            } @else {
+              No providers available at the moment.
+            }
+          </p>
+          @if (searchQuery() || selectedCategory()) {
+            <button
+              cButton
+              color="primary"
+              variant="outline"
+              (click)="onCategoryChange(null); searchQuery.set('')"
+            >
+              Clear Filters
+            </button>
+          }
+        </c-card-body>
+      </c-card>
+    }
+  </c-col>
+</c-row>
+
+<!-- Add Manual Resource Modal -->
+<c-modal [visible]="showResourceModal()" (visibleChange)="handleResourceModalChange($event)">
+  <c-modal-header>
+    <h5 cModalTitle>Add My Own Resource</h5>
+    <button cButtonClose (click)="toggleResourceModal()"></button>
+  </c-modal-header>
+  <c-modal-body>
+    <form [formGroup]="resourceForm">
+      <div class="mb-3">
+        <label cLabel>Full Name <span class="text-danger">*</span></label>
+        <input
+          cFormControl
+          formControlName="fullName"
+          placeholder="John Doe"
+          [class.is-invalid]="resourceForm.get('fullName')?.invalid && resourceForm.get('fullName')?.touched"
+        />
+        @if (resourceForm.get('fullName')?.invalid && resourceForm.get('fullName')?.touched) {
+          <div class="invalid-feedback">Full name is required</div>
+        }
+      </div>
+      <div class="mb-3">
+        <label cLabel>Role / Title <span class="text-danger">*</span></label>
+        <input
+          cFormControl
+          formControlName="role"
+          placeholder="Marketing Manager"
+          [class.is-invalid]="resourceForm.get('role')?.invalid && resourceForm.get('role')?.touched"
+        />
+        @if (resourceForm.get('role')?.invalid && resourceForm.get('role')?.touched) {
+          <div class="invalid-feedback">Role is required</div>
+        }
+      </div>
+      <div class="mb-3">
+        <label cLabel>Company / Agency Name</label>
+        <input cFormControl formControlName="company" placeholder="Optional" />
+      </div>
+      <div class="mb-3">
+        <label cLabel>Email <span class="text-danger">*</span></label>
+        <input
+          cFormControl
+          type="email"
+          formControlName="email"
+          placeholder="john@example.com"
+          [class.is-invalid]="resourceForm.get('email')?.invalid && resourceForm.get('email')?.touched"
+        />
+        @if (resourceForm.get('email')?.invalid && resourceForm.get('email')?.touched) {
+          <div class="invalid-feedback">
+            @if (resourceForm.get('email')?.errors?.['required']) {
+              Email is required
+            } @else if (resourceForm.get('email')?.errors?.['email']) {
+              Please enter a valid email address
+            }
+          </div>
+        }
+      </div>
+      <div class="mb-3">
+        <label cLabel>Phone</label>
+        <input cFormControl type="tel" formControlName="phone" placeholder="Optional" />
+      </div>
+    </form>
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="toggleResourceModal()">Cancel</button>
+    <button
+      cButton
+      color="primary"
+      (click)="addResource()"
+      [disabled]="resourceForm.invalid"
+    >
+      Add Resource
+    </button>
+  </c-modal-footer>
+</c-modal>
+
+<!-- Connect Provider Modal -->
+<c-modal [visible]="showConnectModal()" (visibleChange)="showConnectModal.set($event)">
+  <c-modal-header>
+    <h5 cModalTitle>Connect Provider</h5>
+    <button cButtonClose (click)="closeConnectModal()"></button>
+  </c-modal-header>
+  <c-modal-body>
+    @if (connectProviderId(); as providerId) {
+      @if (getProviderById(providerId); as provider) {
+        <div class="text-center mb-4">
+          @if (provider.avatar) {
+            <c-avatar
+              [src]="'./assets/images/avatars/' + provider.avatar"
+              size="xl"
+              class="mb-3"
+            ></c-avatar>
+          } @else {
+            <div
+              class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white mb-3"
+              style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;"
+            >
+              {{ provider.name.charAt(0) }}
+            </div>
+          }
+          <h5>{{ provider.name }}</h5>
+          <c-badge [color]="provider.type === 'Agency' ? 'primary' : 'success'" class="mb-3">
+            {{ provider.type }}
+          </c-badge>
+          <p class="text-muted">{{ provider.description }}</p>
+        </div>
+        <div class="mb-3">
+          <strong>Skills:</strong>
+          <div class="mt-2">
+            @for (skill of provider.skills; track skill) {
+              <c-badge color="info" class="me-1 mb-1">{{ skill }}</c-badge>
+            }
+          </div>
+        </div>
+        <div class="d-flex justify-content-between mb-3">
+          <div>
+            <svg cIcon name="cilStar" class="text-warning me-1"></svg>
+            <strong>Rating: {{ provider.rating }}</strong>
+          </div>
+          <div>
+            <svg cIcon name="cilDollar" class="text-success me-1"></svg>
+            <strong>{{ provider.rate }}</strong>
+          </div>
+        </div>
+        @if (selectedActionId() && selectedProjectId()) {
+          <div class="alert alert-info">
+            <svg cIcon name="cilInfo" class="me-2"></svg>
+            This provider will be assigned to the selected strategic action.
+          </div>
+        }
+      }
+    }
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="closeConnectModal()">Cancel</button>
+    <button
+      cButton
+      color="primary"
+      (click)="connectProvider()"
+      [disabled]="!connectProviderId() || !selectedActionId() || !selectedProjectId()"
+    >
+      <svg cIcon name="cilUserPlus" class="me-2"></svg>
+      Connect Provider
+    </button>
+  </c-modal-footer>
+</c-modal>

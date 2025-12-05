@@ -1,12 +1,12 @@
 <c-row class="mb-4">
   <c-col sm="6" xl="3">
-    <c-widget-stat-b class="mb-4" color="primary" inverse text="Active Projects" title="Projects" value="3">
-      <c-progress class="my-2" thin value="75" white />
+    <c-widget-stat-b class="mb-4" color="primary" inverse text="Active Projects" title="Projects" [value]="projectsCount().toString()">
+      <c-progress class="my-2" thin [value]="75" white />
     </c-widget-stat-b>
   </c-col>
   <c-col sm="6" xl="3">
-    <c-widget-stat-b class="mb-4" color="warning" inverse text="Pending Actions" title="Actions" value="5">
-      <c-progress class="my-2" thin value="25" white />
+    <c-widget-stat-b class="mb-4" color="warning" inverse text="Pending Actions" title="Actions" [value]="pendingActionsCount().toString()">
+      <c-progress class="my-2" thin [value]="25" white />
     </c-widget-stat-b>
   </c-col>
 </c-row>
@@ -22,36 +22,50 @@
     </div>
     <c-card class="mb-4">
       <c-card-body>
-        <table cTable hover responsive>
-          <thead>
-            <tr>
-              <th>Project Name</th>
-              <th>Client</th>
-              <th>Status</th>
-              <th>Progress</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (project of projects; track project.id) {
-            <tr>
-              <td>{{ project.name }}</td>
-              <td>{{ project.client }}</td>
-              <td>
-                <c-badge [color]="project.color">{{ project.status }}</c-badge>
-              </td>
-              <td>
-                <c-progress [value]="project.progress" [color]="project.color" class="mb-0"></c-progress>
-              </td>
-              <td>
-                <button cButton color="link" size="sm" [routerLink]="['/projects', project.id]">
-                  View Details
-                </button>
-              </td>
-            </tr>
-            }
-          </tbody>
-        </table>
+        @if (projects(); as projectList) {
+          @if (projectList.length === 0) {
+            <div class="text-center py-5">
+              <svg cIcon name="cilBriefcase" size="3xl" class="text-muted mb-3"></svg>
+              <h4>No active projects</h4>
+              <p class="text-muted">Get started by creating your first project</p>
+              <button cButton color="primary" routerLink="/projects/new">
+                <svg cIcon class="me-2" name="cilPlus"></svg>
+                Create New Project
+              </button>
+            </div>
+          } @else {
+            <table cTable hover responsive>
+              <thead>
+                <tr>
+                  <th>Project Name</th>
+                  <th>Client</th>
+                  <th>Status</th>
+                  <th>Progress</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (project of projectList; track project.id) {
+                  <tr>
+                    <td>{{ project.name }}</td>
+                    <td>{{ project.client }}</td>
+                    <td>
+                      <c-badge [color]="getStatusColor(project.status)">{{ project.status }}</c-badge>
+                    </td>
+                    <td>
+                      <c-progress [value]="project.progress" [color]="getStatusColor(project.status)" class="mb-0"></c-progress>
+                    </td>
+                    <td>
+                      <button cButton color="link" size="sm" [routerLink]="['/projects', project.id]">
+                        View Details
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        }
       </c-card-body>
     </c-card>
   </c-col>

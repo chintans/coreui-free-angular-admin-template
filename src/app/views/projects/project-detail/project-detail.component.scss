@@ -1,0 +1,15 @@
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.chat-messages {
+  min-height: 300px;
+}
+
+c-list-group-item {
+  &.active {
+    background-color: var(--cui-primary-bg-subtle);
+    border-color: var(--cui-primary);
+  }
+}
+

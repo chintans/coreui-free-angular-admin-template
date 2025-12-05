@@ -1,133 +1,169 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
-  CardComponent, CardBodyComponent, CardHeaderComponent,
-  ButtonDirective, GridModule, FormModule, BadgeComponent,
-  SpinnerComponent, ProgressComponent
+  CardComponent,
+  CardBodyComponent,
+  CardHeaderComponent,
+  ButtonDirective,
+  GridModule,
+  FormModule,
+  BadgeComponent,
+  SpinnerComponent,
+  ProgressComponent,
+  RowComponent,
+  ColComponent
 } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
+import { ProjectService } from '../../../core/services/project.service';
+import { AIModel, StrategyData } from '../../../core/models/project.models';
+
+interface ModelOption {
+  id: AIModel;
+  name: string;
+  description: string;
+  icon: string;
+  strength: string;
+}
 
 @Component({
   selector: 'app-deep-research',
   standalone: true,
   imports: [
     CommonModule,
-    CardComponent, CardBodyComponent, CardHeaderComponent,
-    ButtonDirective, GridModule, FormModule, BadgeComponent,
-    SpinnerComponent, ProgressComponent, IconDirective
+    CardComponent,
+    CardBodyComponent,
+    CardHeaderComponent,
+    ButtonDirective,
+    GridModule,
+    FormModule,
+    BadgeComponent,
+    SpinnerComponent,
+    ProgressComponent,
+    RowComponent,
+    ColComponent,
+    IconDirective
   ],
-  template: `
-    <c-row>
-      <c-col xs="12">
-        <c-card class="mb-4">
-          <c-card-header>
-            <strong>Step 5: Deep Research & Model Selection</strong>
-          </c-card-header>
-          <c-card-body>
-            <c-row>
-              <c-col md="8">
-                <h5 class="mb-4">Select AI Model</h5>
-                <div class="d-flex gap-3 mb-4">
-                  @for (model of models; track model.id) {
-                    <c-card
-                      [ngClass]="{'border-primary bg-primary-subtle': selectedModel === model.id}"
-                      class="cursor-pointer flex-fill"
-                      (click)="selectModel(model.id)"
-                      style="cursor: pointer;"
-                    >
-                      <c-card-body class="text-center">
-                        <svg cIcon [name]="model.icon" size="3xl" class="mb-3 text-primary"></svg>
-                        <h6>{{ model.name }}</h6>
-                        <p class="small text-muted mb-0">{{ model.description }}</p>
-                      </c-card-body>
-                    </c-card>
-                  }
-                </div>
-
-                <h5 class="mb-3">Research Scope</h5>
-                <c-card class="bg-light border-0 mb-4">
-                  <c-card-body>
-                    <ul class="mb-0">
-                      @for (item of scope; track item) {
-                        <li class="mb-2">{{ item }}</li>
-                      }
-                    </ul>
-                  </c-card-body>
-                </c-card>
-
-                <div class="d-grid">
-                  <button cButton color="primary" size="lg" (click)="executeResearch()" [disabled]="isResearching">
-                    @if (isResearching) {
-                      <c-spinner size="sm" class="me-2"></c-spinner>
-                      Researching... {{ researchProgress }}%
-                    } @else {
-                      Execute Research & Build Strategy
-                      <svg cIcon class="ms-2" name="cilRocket"></svg>
-                    }
-                  </button>
-                  @if (isResearching) {
-                    <c-progress class="mt-3" [value]="researchProgress" animated></c-progress>
-                  }
-                </div>
-              </c-col>
-
-              <c-col md="4">
-                <c-card class="bg-info-subtle border-0 h-100">
-                  <c-card-body>
-                    <h5 class="card-title text-info-emphasis mb-3">
-                      <svg cIcon class="me-2" name="cilInfo"></svg>
-                      Why Deep Research?
-                    </h5>
-                    <p class="text-info-emphasis">
-                      ScaleX uses advanced AI agents to crawl the web, analyze competitors, and synthesize market data.
-                    </p>
-                    <p class="text-info-emphasis">
-                      This process ensures your strategy is backed by real-time data and actionable insights, not just generic advice.
-                    </p>
-                  </c-card-body>
-                </c-card>
-              </c-col>
-            </c-row>
-          </c-card-body>
-        </c-card>
-      </c-col>
-    </c-row>
-  `
+  templateUrl: './deep-research.component.html',
+  styleUrls: ['./deep-research.component.scss']
 })
-export class DeepResearchComponent {
-  private router = inject(Router);
+export class DeepResearchComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly projectService = inject(ProjectService);
 
-  selectedModel = 'gemini';
-  isResearching = false;
-  researchProgress = 0;
+  projectId = signal<string>('');
+  selectedModel = signal<AIModel>('gemini');
+  isResearching = signal(false);
+  researchProgress = signal(0);
 
-  models = [
-    { id: 'gemini', name: 'Gemini 1.5 Pro', description: 'Best for reasoning and large context.', icon: 'cibGoogle' },
-    { id: 'gpt4', name: 'GPT-4o', description: 'Creative and versatile.', icon: 'cibOpenai' },
-    { id: 'deepsea', name: 'DeepSea', description: 'Specialized for market research.', icon: 'cilWaves' }
+  models: ModelOption[] = [
+    {
+      id: 'gemini',
+      name: 'Gemini 1.5 Pro',
+      description: 'Best for reasoning and large context',
+      icon: 'cilChart',
+      strength: 'Reasoning'
+    },
+    {
+      id: 'gpt4',
+      name: 'GPT-4o',
+      description: 'Creative and versatile',
+      icon: 'cilLightbulb',
+      strength: 'Creative'
+    },
+    {
+      id: 'deepsea',
+      name: 'DeepSea',
+      description: 'Specialized for market research with citations',
+      icon: 'cilWaves',
+      strength: 'Citations'
+    }
   ];
 
-  scope = [
-    'Target Market Analysis (Enterprise SaaS)',
+  researchScope = signal<string[]>([
+    'Target Market Analysis',
     'Competitor Feature Comparison',
     'Pricing Models',
     'Customer Sentiment Analysis'
-  ];
+  ]);
 
-  selectModel(id: string) {
-    this.selectedModel = id;
+  ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      const id = params['id'];
+      this.projectId.set(id);
+      const project = this.projectService.getProjectById(id);
+      if (project) {
+        // Load research scope based on project insights
+        this.loadResearchScope(project);
+      }
+    });
   }
 
-  executeResearch() {
-    this.isResearching = true;
+  selectModel(modelId: AIModel): void {
+    this.selectedModel.set(modelId);
+  }
+
+  executeResearch(): void {
+    if (!this.projectId()) {
+      return;
+    }
+
+    this.isResearching.set(true);
+    this.researchProgress.set(0);
+
+    // Simulate research progress
     const interval = setInterval(() => {
-      this.researchProgress += 10;
-      if (this.researchProgress >= 100) {
-        clearInterval(interval);
-        this.isResearching = false;
-        this.router.navigate(['/projects', '1', 'strategy']);
-      }
+      this.researchProgress.update(progress => {
+        const newProgress = progress + 10;
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          this.completeResearch();
+          return 100;
+        }
+        return newProgress;
+      });
     }, 500);
+  }
+
+  private completeResearch(): void {
+    if (!this.projectId()) {
+      return;
+    }
+
+    // Save strategy data
+    const strategyData: StrategyData = {
+      sections: [],
+      model: this.selectedModel(),
+      researchScope: this.researchScope()
+    };
+
+    this.projectService.setStrategy(this.projectId(), strategyData);
+    this.projectService.updateProjectStep(this.projectId(), 'strategy');
+    this.projectService.updateProjectProgress(this.projectId(), 70);
+    this.isResearching.set(false);
+
+    setTimeout(() => {
+      this.router.navigate(['/projects', this.projectId(), 'strategy']);
+    }, 500);
+  }
+
+  private loadResearchScope(project: any): void {
+    // Generate research scope based on project type and insights
+    if (project.conversationType === 'gtm') {
+      this.researchScope.set([
+        'Target Market Analysis',
+        'Competitor Positioning',
+        'Go-To-Market Channels',
+        'Pricing Strategy'
+      ]);
+    } else if (project.conversationType === 'consumer') {
+      this.researchScope.set([
+        'Target Audience Segmentation',
+        'Consumer Behavior Analysis',
+        'Market Trends',
+        'Competitive Landscape'
+      ]);
+    }
   }
 }

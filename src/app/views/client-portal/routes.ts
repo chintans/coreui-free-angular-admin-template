@@ -7,5 +7,12 @@ export const routes: Routes = [
         data: {
             title: 'Client Portal'
         }
+    },
+    {
+        path: ':id',
+        loadComponent: () => import('./client-portal.component').then(m => m.ClientPortalComponent),
+        data: {
+            title: 'Client Portal'
+        }
     }
 ];
