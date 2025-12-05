@@ -178,7 +178,7 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
 
 @Component({
   selector: 'app-chart-sample',
-  template: '<c-chart type="line" [data]="data" [options]="options" width="300" #chart />',
+  templateUrl: './chart-sample.component.html',
   imports: [ChartjsComponent]
 })
 export class ChartSample implements AfterViewInit {

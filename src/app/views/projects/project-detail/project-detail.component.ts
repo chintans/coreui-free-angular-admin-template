@@ -6,15 +6,6 @@ import { CardComponent, CardBodyComponent, CardHeaderComponent } from '@coreui/a
     selector: 'app-project-detail',
     standalone: true,
     imports: [CommonModule, CardComponent, CardBodyComponent, CardHeaderComponent],
-    template: `
-    <c-card class="mb-4">
-      <c-card-header>
-        <strong>Project Details</strong>
-      </c-card-header>
-      <c-card-body>
-        <p>Project Details Placeholder</p>
-      </c-card-body>
-    </c-card>
-  `
+    templateUrl: './project-detail.component.html'
 })
 export class ProjectDetailComponent { }
