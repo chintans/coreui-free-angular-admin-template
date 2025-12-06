@@ -6,12 +6,16 @@ import {
   withHashLocation,
   withInMemoryScrolling,
   withRouterConfig,
-  withViewTransitions
+  withDebugTracing
+  // withViewTransitions // Disabled to prevent ViewTransition conflicts
 } from '@angular/router';
 
 import { DropdownModule, SidebarModule } from '@coreui/angular';
 import { IconSetService } from '@coreui/icons-angular';
 import { routes } from './app.routes';
+
+// Enable router diagnostics - set to false in production
+const ENABLE_ROUTER_DIAGNOSTICS = true;
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -24,8 +28,10 @@ export const appConfig: ApplicationConfig = {
         anchorScrolling: 'enabled'
       }),
       withEnabledBlockingInitialNavigation(),
-      withViewTransitions(),
-      withHashLocation()
+      // withViewTransitions(), // Disabled to prevent ViewTransition conflicts
+      withHashLocation(),
+      // Enable Angular's built-in router tracing for detailed diagnostics
+      ...(ENABLE_ROUTER_DIAGNOSTICS ? [withDebugTracing()] : [])
     ),
     importProvidersFrom(SidebarModule, DropdownModule),
     IconSetService,

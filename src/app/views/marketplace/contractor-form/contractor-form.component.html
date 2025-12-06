@@ -1,0 +1,157 @@
+<c-row>
+  <c-col xs="12">
+    <div class="mb-4">
+      <button cButton color="link" (click)="onCancel()" class="mb-2">
+        <svg cIcon name="cilArrowLeft" class="me-2"></svg>
+        @if (isEditMode()) {
+          Back to Contractor
+        } @else {
+          Back to Marketplace
+        }
+      </button>
+      <h2>{{ isEditMode() ? 'Edit Contractor' : 'Add New Contractor' }}</h2>
+    </div>
+
+    <c-card>
+      <c-card-header>
+        <h5>Contractor Information</h5>
+      </c-card-header>
+      <c-card-body>
+        <form [formGroup]="contractorForm" (ngSubmit)="onSubmit()">
+          <c-row>
+            <c-col xs="12" md="6">
+              <div class="mb-3">
+                <label cLabel>Name <span class="text-danger">*</span></label>
+                <input
+                  cFormControl
+                  formControlName="name"
+                  placeholder="Contractor Name"
+                  [class.is-invalid]="contractorForm.get('name')?.invalid && contractorForm.get('name')?.touched"
+                />
+                @if (contractorForm.get('name')?.invalid && contractorForm.get('name')?.touched) {
+                  <div class="invalid-feedback">Name is required</div>
+                }
+              </div>
+            </c-col>
+            <c-col xs="12" md="6">
+              <div class="mb-3">
+                <label cLabel>Type <span class="text-danger">*</span></label>
+                <select
+                  cFormControl
+                  formControlName="type"
+                  [class.is-invalid]="contractorForm.get('type')?.invalid && contractorForm.get('type')?.touched"
+                >
+                  <option value="Agency">Agency</option>
+                  <option value="Independent">Independent</option>
+                </select>
+                @if (contractorForm.get('type')?.invalid && contractorForm.get('type')?.touched) {
+                  <div class="invalid-feedback">Type is required</div>
+                }
+              </div>
+            </c-col>
+          </c-row>
+
+          <c-row>
+            <c-col xs="12" md="6">
+              <div class="mb-3">
+                <label cLabel>Rating <span class="text-danger">*</span></label>
+                <input
+                  cFormControl
+                  type="number"
+                  formControlName="rating"
+                  min="0"
+                  max="5"
+                  step="0.1"
+                  [class.is-invalid]="contractorForm.get('rating')?.invalid && contractorForm.get('rating')?.touched"
+                />
+                @if (contractorForm.get('rating')?.invalid && contractorForm.get('rating')?.touched) {
+                  <div class="invalid-feedback">Rating must be between 0 and 5</div>
+                }
+              </div>
+            </c-col>
+            <c-col xs="12" md="6">
+              <div class="mb-3">
+                <label cLabel>Email <span class="text-danger">*</span></label>
+                <input
+                  cFormControl
+                  type="email"
+                  formControlName="email"
+                  placeholder="email@example.com"
+                  [class.is-invalid]="contractorForm.get('email')?.invalid && contractorForm.get('email')?.touched"
+                />
+                @if (contractorForm.get('email')?.invalid && contractorForm.get('email')?.touched) {
+                  <div class="invalid-feedback">
+                    @if (contractorForm.get('email')?.errors?.['required']) {
+                      Email is required
+                    } @else if (contractorForm.get('email')?.errors?.['email']) {
+                      Please enter a valid email address
+                    }
+                  </div>
+                }
+              </div>
+            </c-col>
+          </c-row>
+
+          <c-row>
+            <c-col xs="12">
+              <div class="mb-3">
+                <label cLabel>Phone</label>
+                <input cFormControl type="tel" formControlName="phone" placeholder="+1-555-0101" />
+              </div>
+            </c-col>
+          </c-row>
+
+          <c-row>
+            <c-col xs="12">
+              <div class="mb-3">
+                <label cLabel>Description</label>
+                <textarea
+                  cFormControl
+                  formControlName="description"
+                  rows="4"
+                  placeholder="Brief description of the contractor's services and expertise..."
+                ></textarea>
+              </div>
+            </c-col>
+          </c-row>
+
+          <c-row>
+            <c-col xs="12" md="6">
+              <div class="mb-3">
+                <label cLabel>Skills (comma-separated)</label>
+                <input
+                  cFormControl
+                  formControlName="skills"
+                  placeholder="GTM Strategy, PPC, Content Marketing"
+                />
+                <small class="form-text text-muted">Separate multiple skills with commas</small>
+              </div>
+            </c-col>
+            <c-col xs="12" md="6">
+              <div class="mb-3">
+                <label cLabel>Categories (comma-separated)</label>
+                <input
+                  cFormControl
+                  formControlName="categories"
+                  placeholder="Marketing, Sales, GTM Strategy"
+                />
+                <small class="form-text text-muted">Separate multiple categories with commas</small>
+              </div>
+            </c-col>
+          </c-row>
+
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <button cButton color="secondary" type="button" (click)="onCancel()">
+              Cancel
+            </button>
+            <button cButton color="primary" type="submit" [disabled]="contractorForm.invalid">
+              <svg cIcon name="cilCheck" class="me-2"></svg>
+              {{ isEditMode() ? 'Update Contractor' : 'Create Contractor' }}
+            </button>
+          </div>
+        </form>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+

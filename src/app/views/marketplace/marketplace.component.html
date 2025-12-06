@@ -74,7 +74,7 @@
         <c-card-header>
           <div class="d-flex justify-content-between align-items-center">
             <h5>Contractor Management</h5>
-            <button cButton color="primary" size="sm" (click)="openAddContractorModal()">
+            <button cButton color="primary" size="sm" (click)="navigateToAddContractor()">
               <svg cIcon class="me-2" name="cilPlus"></svg>
               Add Contractor
             </button>
@@ -101,7 +101,7 @@
                   </td>
                   <td>{{ provider.rating }}</td>
                   <td>
-                    <button cButton color="link" size="sm" (click)="openEditContractorModal(provider.id)">
+                    <button cButton color="link" size="sm" [routerLink]="['/marketplace/contractors', provider.id, 'edit']">
                       <svg cIcon name="cilPencil"></svg>
                     </button>
                     <button cButton color="link" size="sm" (click)="confirmDelete(provider.id)">
@@ -126,10 +126,6 @@
         <h3 class="mb-1">Actionable Marketplace</h3>
         <p class="text-muted small mb-0">Connect strategy to execution with curated service providers</p>
       </div>
-      <button cButton color="primary" (click)="toggleResourceModal()">
-        <svg cIcon class="me-2" name="cilPlus"></svg>
-        Add My Own Resource
-      </button>
     </div>
 
     <!-- Filters Section -->
@@ -221,14 +217,10 @@
                     <c-badge color="info" class="me-1 mb-1">{{ skill }}</c-badge>
                   }
                 </div>
-                <div class="d-flex justify-content-center gap-3 mb-3">
+                <div class="d-flex justify-content-center mb-3">
                   <div class="d-flex align-items-center">
                     <svg cIcon name="cilStar" class="text-warning me-1"></svg>
                     <strong>{{ provider.rating }}</strong>
-                  </div>
-                  <div class="d-flex align-items-center">
-                    <svg cIcon name="cilDollar" class="text-success me-1"></svg>
-                    <strong>{{ provider.rate }}</strong>
                   </div>
                 </div>
                 <button
@@ -236,10 +228,10 @@
                   color="primary"
                   variant="outline"
                   class="w-100"
-                  (click)="openConnectModal(provider.id)"
+                  [routerLink]="['/marketplace/contractors', provider.id]"
                 >
-                  <svg cIcon name="cilUserPlus" class="me-2"></svg>
-                  Connect
+                  <svg cIcon name="cilInfo" class="me-2"></svg>
+                  View Details
                 </button>
               </c-card-body>
             </c-card>
@@ -274,267 +266,8 @@
   </c-col>
 </c-row>
 
-<!-- Add Manual Resource Modal -->
-<c-modal [visible]="showResourceModal()" (visibleChange)="handleResourceModalChange($event)">
-  <c-modal-header>
-    <h5 cModalTitle>Add My Own Resource</h5>
-    <button cButtonClose (click)="toggleResourceModal()"></button>
-  </c-modal-header>
-  <c-modal-body>
-    <form [formGroup]="resourceForm">
-      <div class="mb-3">
-        <label cLabel>Full Name <span class="text-danger">*</span></label>
-        <input
-          cFormControl
-          formControlName="fullName"
-          placeholder="John Doe"
-          [class.is-invalid]="resourceForm.get('fullName')?.invalid && resourceForm.get('fullName')?.touched"
-        />
-        @if (resourceForm.get('fullName')?.invalid && resourceForm.get('fullName')?.touched) {
-          <div class="invalid-feedback">Full name is required</div>
-        }
-      </div>
-      <div class="mb-3">
-        <label cLabel>Role / Title <span class="text-danger">*</span></label>
-        <input
-          cFormControl
-          formControlName="role"
-          placeholder="Marketing Manager"
-          [class.is-invalid]="resourceForm.get('role')?.invalid && resourceForm.get('role')?.touched"
-        />
-        @if (resourceForm.get('role')?.invalid && resourceForm.get('role')?.touched) {
-          <div class="invalid-feedback">Role is required</div>
-        }
-      </div>
-      <div class="mb-3">
-        <label cLabel>Company / Agency Name</label>
-        <input cFormControl formControlName="company" placeholder="Optional" />
-      </div>
-      <div class="mb-3">
-        <label cLabel>Email <span class="text-danger">*</span></label>
-        <input
-          cFormControl
-          type="email"
-          formControlName="email"
-          placeholder="john@example.com"
-          [class.is-invalid]="resourceForm.get('email')?.invalid && resourceForm.get('email')?.touched"
-        />
-        @if (resourceForm.get('email')?.invalid && resourceForm.get('email')?.touched) {
-          <div class="invalid-feedback">
-            @if (resourceForm.get('email')?.errors?.['required']) {
-              Email is required
-            } @else if (resourceForm.get('email')?.errors?.['email']) {
-              Please enter a valid email address
-            }
-          </div>
-        }
-      </div>
-      <div class="mb-3">
-        <label cLabel>Phone</label>
-        <input cFormControl type="tel" formControlName="phone" placeholder="Optional" />
-      </div>
-    </form>
-  </c-modal-body>
-  <c-modal-footer>
-    <button cButton color="secondary" (click)="toggleResourceModal()">Cancel</button>
-    <button
-      cButton
-      color="primary"
-      (click)="addResource()"
-      [disabled]="resourceForm.invalid"
-    >
-      Add Resource
-    </button>
-  </c-modal-footer>
-</c-modal>
-
-<!-- Connect Provider Modal -->
-<c-modal [visible]="showConnectModal()" (visibleChange)="showConnectModal.set($event)">
-  <c-modal-header>
-    <h5 cModalTitle>Connect Provider</h5>
-    <button cButtonClose (click)="closeConnectModal()"></button>
-  </c-modal-header>
-  <c-modal-body>
-    @if (connectProviderId(); as providerId) {
-      @if (getProviderById(providerId); as provider) {
-        <div class="text-center mb-4">
-          @if (provider.avatar) {
-            <c-avatar
-              [src]="'./assets/images/avatars/' + provider.avatar"
-              size="xl"
-              class="mb-3"
-            ></c-avatar>
-          } @else {
-            <div
-              class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white mb-3"
-              style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;"
-            >
-              {{ provider.name.charAt(0) }}
-            </div>
-          }
-          <h5>{{ provider.name }}</h5>
-          <c-badge [color]="provider.type === 'Agency' ? 'primary' : 'success'" class="mb-3">
-            {{ provider.type }}
-          </c-badge>
-          <p class="text-muted">{{ provider.description }}</p>
-        </div>
-        <div class="mb-3">
-          <strong>Skills:</strong>
-          <div class="mt-2">
-            @for (skill of provider.skills; track skill) {
-              <c-badge color="info" class="me-1 mb-1">{{ skill }}</c-badge>
-            }
-          </div>
-        </div>
-        <div class="d-flex justify-content-between mb-3">
-          <div>
-            <svg cIcon name="cilStar" class="text-warning me-1"></svg>
-            <strong>Rating: {{ provider.rating }}</strong>
-          </div>
-          <div>
-            <svg cIcon name="cilDollar" class="text-success me-1"></svg>
-            <strong>{{ provider.rate }}</strong>
-          </div>
-        </div>
-        @if (selectedActionId() && selectedProjectId()) {
-          <div class="alert alert-info">
-            <svg cIcon name="cilInfo" class="me-2"></svg>
-            This provider will be assigned to the selected strategic action.
-          </div>
-        }
-      }
-    }
-  </c-modal-body>
-  <c-modal-footer>
-    <button cButton color="secondary" (click)="closeConnectModal()">Cancel</button>
-    <button
-      cButton
-      color="primary"
-      (click)="connectProvider()"
-      [disabled]="!connectProviderId() || !selectedActionId() || !selectedProjectId()"
-    >
-      <svg cIcon name="cilUserPlus" class="me-2"></svg>
-      Connect Provider
-    </button>
-  </c-modal-footer>
-</c-modal>
-
-<!-- Super Admin: Add Contractor Modal -->
+<!-- Delete Confirmation Modal (Super Admin only) -->
 @if (isSuperAdmin()) {
-  <c-modal [visible]="showContractorModal()" (visibleChange)="showContractorModal.set($event)">
-    <c-modal-header>
-      <h5 cModalTitle>Add New Contractor</h5>
-      <button cButtonClose (click)="closeContractorModal()"></button>
-    </c-modal-header>
-    <c-modal-body>
-      <form [formGroup]="contractorForm">
-        <div class="mb-3">
-          <label cLabel>Name <span class="text-danger">*</span></label>
-          <input cFormControl formControlName="name" placeholder="Contractor Name" />
-        </div>
-        <div class="mb-3">
-          <label cLabel>Type <span class="text-danger">*</span></label>
-          <select cFormControl formControlName="type">
-            <option value="Agency">Agency</option>
-            <option value="Independent">Independent</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label cLabel>Rating <span class="text-danger">*</span></label>
-          <input cFormControl type="number" formControlName="rating" min="0" max="5" step="0.1" />
-        </div>
-        <div class="mb-3">
-          <label cLabel>Rate <span class="text-danger">*</span></label>
-          <input cFormControl formControlName="rate" placeholder="$150/hr" />
-        </div>
-        <div class="mb-3">
-          <label cLabel>Email <span class="text-danger">*</span></label>
-          <input cFormControl type="email" formControlName="email" />
-        </div>
-        <div class="mb-3">
-          <label cLabel>Phone</label>
-          <input cFormControl type="tel" formControlName="phone" />
-        </div>
-        <div class="mb-3">
-          <label cLabel>Description</label>
-          <textarea cFormControl formControlName="description" rows="3"></textarea>
-        </div>
-        <div class="mb-3">
-          <label cLabel>Skills (comma-separated)</label>
-          <input cFormControl formControlName="skills" placeholder="GTM Strategy, PPC, Content Marketing" />
-        </div>
-        <div class="mb-3">
-          <label cLabel>Categories (comma-separated)</label>
-          <input cFormControl formControlName="categories" placeholder="Marketing, Sales, GTM Strategy" />
-        </div>
-      </form>
-    </c-modal-body>
-    <c-modal-footer>
-      <button cButton color="secondary" (click)="closeContractorModal()">Cancel</button>
-      <button cButton color="primary" (click)="saveContractor()" [disabled]="contractorForm.invalid">
-        Add Contractor
-      </button>
-    </c-modal-footer>
-  </c-modal>
-
-  <!-- Edit Contractor Modal -->
-  <c-modal [visible]="showEditContractorModal()" (visibleChange)="showEditContractorModal.set($event)">
-    <c-modal-header>
-      <h5 cModalTitle>Edit Contractor</h5>
-      <button cButtonClose (click)="closeEditContractorModal()"></button>
-    </c-modal-header>
-    <c-modal-body>
-      <form [formGroup]="contractorForm">
-        <div class="mb-3">
-          <label cLabel>Name <span class="text-danger">*</span></label>
-          <input cFormControl formControlName="name" placeholder="Contractor Name" />
-        </div>
-        <div class="mb-3">
-          <label cLabel>Type <span class="text-danger">*</span></label>
-          <select cFormControl formControlName="type">
-            <option value="Agency">Agency</option>
-            <option value="Independent">Independent</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label cLabel>Rating <span class="text-danger">*</span></label>
-          <input cFormControl type="number" formControlName="rating" min="0" max="5" step="0.1" />
-        </div>
-        <div class="mb-3">
-          <label cLabel>Rate <span class="text-danger">*</span></label>
-          <input cFormControl formControlName="rate" placeholder="$150/hr" />
-        </div>
-        <div class="mb-3">
-          <label cLabel>Email <span class="text-danger">*</span></label>
-          <input cFormControl type="email" formControlName="email" />
-        </div>
-        <div class="mb-3">
-          <label cLabel>Phone</label>
-          <input cFormControl type="tel" formControlName="phone" />
-        </div>
-        <div class="mb-3">
-          <label cLabel>Description</label>
-          <textarea cFormControl formControlName="description" rows="3"></textarea>
-        </div>
-        <div class="mb-3">
-          <label cLabel>Skills (comma-separated)</label>
-          <input cFormControl formControlName="skills" placeholder="GTM Strategy, PPC, Content Marketing" />
-        </div>
-        <div class="mb-3">
-          <label cLabel>Categories (comma-separated)</label>
-          <input cFormControl formControlName="categories" placeholder="Marketing, Sales, GTM Strategy" />
-        </div>
-      </form>
-    </c-modal-body>
-    <c-modal-footer>
-      <button cButton color="secondary" (click)="closeEditContractorModal()">Cancel</button>
-      <button cButton color="primary" (click)="updateContractor()" [disabled]="contractorForm.invalid">
-        Update Contractor
-      </button>
-    </c-modal-footer>
-  </c-modal>
-
-  <!-- Delete Confirmation Modal -->
   <c-modal [visible]="showDeleteConfirm()" (visibleChange)="showDeleteConfirm.set($event)">
     <c-modal-header>
       <h5 cModalTitle>Confirm Delete</h5>

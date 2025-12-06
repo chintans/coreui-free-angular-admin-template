@@ -1,0 +1,140 @@
+@if (contractor(); as contractorData) {
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <button cButton color="link" [routerLink]="['/marketplace']" class="mb-2">
+            <svg cIcon name="cilArrowLeft" class="me-2"></svg>
+            Back to Marketplace
+          </button>
+          <h2 class="mb-0">{{ contractorData.name }}</h2>
+        </div>
+        @if (isSuperAdmin()) {
+          <div class="d-flex gap-2">
+            <button cButton color="primary" (click)="onEdit()">
+              <svg cIcon name="cilPencil" class="me-2"></svg>
+              Edit
+            </button>
+            <button cButton color="danger" variant="outline" (click)="onDelete()">
+              <svg cIcon name="cilTrash" class="me-2"></svg>
+              Delete
+            </button>
+          </div>
+        }
+      </div>
+    </c-col>
+  </c-row>
+
+  <c-row>
+    <c-col xs="12" lg="4">
+      <c-card class="mb-4">
+        <c-card-body class="text-center">
+          @if (contractorData.avatar) {
+            <c-avatar
+              [src]="'./assets/images/avatars/' + contractorData.avatar"
+              size="xxl"
+              class="mb-3"
+            ></c-avatar>
+          } @else {
+            <div
+              class="d-inline-flex align-items-center justify-content-center rounded-circle bg-primary text-white mb-3"
+              style="width: 120px; height: 120px; font-size: 3rem; font-weight: bold;"
+            >
+              {{ contractorData.name.charAt(0) }}
+            </div>
+          }
+          <h4 class="mb-2">{{ contractorData.name }}</h4>
+          <c-badge
+            [color]="contractorData.type === 'Agency' ? 'primary' : 'success'"
+            class="mb-3"
+          >
+            {{ contractorData.type }}
+          </c-badge>
+          @if (contractorData.description) {
+            <p class="text-muted">{{ contractorData.description }}</p>
+          }
+          <div class="d-flex justify-content-center align-items-center gap-3 mb-3">
+            <div class="d-flex align-items-center">
+              <svg cIcon name="cilStar" class="text-warning me-1"></svg>
+              <strong>{{ contractorData.rating }}</strong>
+            </div>
+          </div>
+        </c-card-body>
+      </c-card>
+
+      <c-card class="mb-4">
+        <c-card-header>
+          <h5>Contact Information</h5>
+        </c-card-header>
+        <c-card-body>
+          @if (contractorData.email) {
+            <div class="mb-3">
+              <strong>Email:</strong>
+              <div>
+                <a [href]="'mailto:' + contractorData.email">{{ contractorData.email }}</a>
+              </div>
+            </div>
+          }
+          @if (contractorData.phone) {
+            <div class="mb-3">
+              <strong>Phone:</strong>
+              <div>
+                <a [href]="'tel:' + contractorData.phone">{{ contractorData.phone }}</a>
+              </div>
+            </div>
+          }
+        </c-card-body>
+      </c-card>
+    </c-col>
+
+    <c-col xs="12" lg="8">
+      <c-card class="mb-4">
+        <c-card-header>
+          <h5>Skills & Expertise</h5>
+        </c-card-header>
+        <c-card-body>
+          <div class="mb-4">
+            @if (contractorData.skills && contractorData.skills.length > 0) {
+              <div>
+                <h6 class="mb-3">Skills</h6>
+                <div>
+                  @for (skill of contractorData.skills; track skill) {
+                    <c-badge color="info" class="me-2 mb-2">{{ skill }}</c-badge>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+          <div>
+            @if (contractorData.categories && contractorData.categories.length > 0) {
+              <div>
+                <h6 class="mb-3">Categories</h6>
+                <div>
+                  @for (category of contractorData.categories; track category) {
+                    <c-badge color="secondary" class="me-2 mb-2">{{ category }}</c-badge>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+} @else {
+  <c-row>
+    <c-col xs="12">
+      <c-card>
+        <c-card-body class="text-center py-5">
+          <svg cIcon name="cilUser" size="3xl" class="text-muted mb-3"></svg>
+          <h4>Contractor not found</h4>
+          <p class="text-muted">The contractor you're looking for doesn't exist.</p>
+          <button cButton color="primary" [routerLink]="['/marketplace']">
+            Back to Marketplace
+          </button>
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+}
+
