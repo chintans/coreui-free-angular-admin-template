@@ -30,6 +30,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { AnalyticsService } from '../../core/services/analytics.service';
 import type { Provider } from '../../core/models/project.models';
 import { UserRole } from '../../core/models/user.model';
+import { UserService } from '../../core/services/user.service';
 
 @Component({
   selector: 'app-marketplace',
@@ -67,6 +68,7 @@ export class MarketplaceComponent implements OnInit {
   readonly marketplaceService = inject(MarketplaceService);
   private readonly authService = inject(AuthService);
   private readonly analyticsService = inject(AnalyticsService);
+  private readonly userService = inject(UserService);
 
   readonly userRole = computed(() => this.authService.userRole());
   readonly isSuperAdmin = computed(() => this.userRole() === UserRole.SUPER_ADMIN);
@@ -91,6 +93,8 @@ export class MarketplaceComponent implements OnInit {
 
     return this.marketplaceService.getProvidersByCategory(category);
   });
+
+  readonly contractors = computed(() => this.userService.contractors());
 
   readonly availableCategories = computed<string[]>(() => {
     const providers = this.marketplaceService.providers();

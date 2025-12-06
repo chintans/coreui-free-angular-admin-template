@@ -53,16 +53,70 @@ export class ContractorDetailComponent implements OnInit {
     this.route.params.subscribe(params => {
       const id = params['id'];
       this.contractorId.set(id);
-      const contractor = this.marketplaceService.getProviderById(id);
-      this.contractor.set(contractor);
       
-      // Also check if this is a contractor user
-      const contractorUser = this.userService.getUserById(id);
+      // First check if this is a contractor user by ID
+      let contractorUser = this.userService.getUserById(id);
+      
+      // If found as contractor user, set it and create a provider-like object for display
       if (contractorUser && contractorUser.role === UserRole.CONTRACTOR) {
         this.contractorUser.set(contractorUser);
+        // Create a provider object from user data for consistent display
+        const providerFromUser: Provider = {
+          id: contractorUser.id,
+          name: contractorUser.name,
+          type: 'Independent',
+          rating: 4.5,
+          rate: '$120/hr',
+          avatar: contractorUser.avatar,
+          skills: contractorUser.contractorProfile?.useCases || [],
+          categories: ['General'],
+          email: contractorUser.email,
+          description: 'Experienced contractor with expertise in multiple domains.'
+        };
+        this.contractor.set(providerFromUser);
+      } else {
+        // Check marketplace providers
+        const contractor = this.marketplaceService.getProviderById(id);
+        this.contractor.set(contractor);
+        
+        // Try to find matching contractor user by email or name
+        if (contractor) {
+          const allContractors = this.userService.contractors();
+          contractorUser = allContractors.find(
+            u => u.email === contractor.email || 
+                 u.name.toLowerCase() === contractor.name.toLowerCase()
+          );
+          
+          if (contractorUser && contractorUser.role === UserRole.CONTRACTOR) {
+            this.contractorUser.set(contractorUser);
+          }
+        } else {
+          // If no provider found, try to find contractor user by checking all contractors
+          // This handles cases where viewing directly by user ID from users list
+          const allContractors = this.userService.contractors();
+          contractorUser = allContractors.find(u => u.id === id);
+          
+          if (contractorUser && contractorUser.role === UserRole.CONTRACTOR) {
+            this.contractorUser.set(contractorUser);
+            // Create a provider object from user data for consistent display
+            const providerFromUser: Provider = {
+              id: contractorUser.id,
+              name: contractorUser.name,
+              type: 'Independent',
+              rating: 4.5,
+              rate: '$120/hr',
+              avatar: contractorUser.avatar,
+              skills: contractorUser.contractorProfile?.useCases || [],
+              categories: ['General'],
+              email: contractorUser.email,
+              description: 'Experienced contractor with expertise in multiple domains.'
+            };
+            this.contractor.set(providerFromUser);
+          }
+        }
       }
       
-      if (!contractor && !contractorUser) {
+      if (!this.contractor() && !this.contractorUser()) {
         this.router.navigate(['/marketplace']);
       }
     });

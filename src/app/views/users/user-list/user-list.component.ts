@@ -79,7 +79,8 @@ export class UserListComponent {
       total: users.length,
       admins: users.filter(u => u.role === UserRole.SUPER_ADMIN).length,
       consultants: users.filter(u => u.role === UserRole.CONSULTANT).length,
-      clients: users.filter(u => u.role === UserRole.CLIENT).length
+      clients: users.filter(u => u.role === UserRole.CLIENT).length,
+      contractors: users.filter(u => u.role === UserRole.CONTRACTOR).length
     };
   });
 
