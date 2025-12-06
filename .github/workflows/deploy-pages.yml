@@ -25,13 +25,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: '24'
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm ci
 
       - name: Extract repository name
         id: repo
@@ -42,7 +42,7 @@ jobs:
 
       - name: Build Angular application
         run: |
-          npm run build -- --configuration production --base-href /${{ steps.repo.outputs.name }}/
+          pnpm run build -- --configuration production --base-href /${{ steps.repo.outputs.name }}/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
