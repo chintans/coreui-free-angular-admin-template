@@ -88,6 +88,131 @@
     </c-col>
 
     <c-col xs="12" lg="8">
+      @if (contractorUser()?.contractorProfile) {
+        <!-- Use Cases -->
+        <c-card class="mb-4">
+          <c-card-header>
+            <h5>Use Cases</h5>
+          </c-card-header>
+          <c-card-body>
+            @if (contractorUser()!.contractorProfile!.useCases && contractorUser()!.contractorProfile!.useCases!.length > 0) {
+              <div class="d-flex flex-wrap gap-2">
+                @for (useCase of contractorUser()!.contractorProfile!.useCases; track useCase) {
+                  <c-badge color="info">{{ useCase }}</c-badge>
+                }
+              </div>
+            } @else {
+              <p class="text-muted">No use cases specified</p>
+            }
+          </c-card-body>
+        </c-card>
+
+        <!-- Client Testimonials -->
+        <c-card class="mb-4">
+          <c-card-header>
+            <h5>Client Testimonials</h5>
+          </c-card-header>
+          <c-card-body>
+            @if (contractorUser()!.contractorProfile!.clientTestimonials && contractorUser()!.contractorProfile!.clientTestimonials!.length > 0) {
+              @for (testimonial of contractorUser()!.contractorProfile!.clientTestimonials; track testimonial.id) {
+                <div class="mb-3 pb-3 border-bottom">
+                  <div class="d-flex align-items-center mb-2">
+                    <strong>{{ testimonial.clientName }}</strong>
+                    @if (testimonial.clientCompany) {
+                      <span class="text-muted ms-2">- {{ testimonial.clientCompany }}</span>
+                    }
+                    <div class="ms-auto">
+                      @for (star of [1,2,3,4,5]; track star) {
+                        <svg cIcon [name]="star <= testimonial.rating ? 'cilStar' : 'cilStar'" 
+                             [class.text-warning]="star <= testimonial.rating" 
+                             [class.text-muted]="star > testimonial.rating"
+                             size="sm"></svg>
+                      }
+                    </div>
+                  </div>
+                  <p class="mb-0">{{ testimonial.testimonial }}</p>
+                  @if (testimonial.date) {
+                    <small class="text-muted">{{ testimonial.date | date:'mediumDate' }}</small>
+                  }
+                </div>
+              }
+            } @else {
+              <p class="text-muted">No testimonials yet</p>
+            }
+          </c-card-body>
+        </c-card>
+
+        <!-- Recent Work -->
+        <c-card class="mb-4">
+          <c-card-header>
+            <h5>Recent Work</h5>
+          </c-card-header>
+          <c-card-body>
+            @if (contractorUser()!.contractorProfile!.recentWork && contractorUser()!.contractorProfile!.recentWork!.length > 0) {
+              @for (work of contractorUser()!.contractorProfile!.recentWork; track work.id) {
+                <div class="mb-3 pb-3 border-bottom">
+                  <h6>{{ work.title }}</h6>
+                  @if (work.clientName) {
+                    <p class="text-muted small mb-1">Client: {{ work.clientName }}</p>
+                  }
+                  <p class="mb-1">{{ work.description }}</p>
+                  <div class="d-flex gap-2">
+                    @if (work.category) {
+                      <c-badge color="secondary">{{ work.category }}</c-badge>
+                    }
+                    @if (work.completedDate) {
+                      <small class="text-muted">{{ work.completedDate | date:'mediumDate' }}</small>
+                    }
+                  </div>
+                </div>
+              }
+            } @else {
+              <p class="text-muted">No recent work listed</p>
+            }
+          </c-card-body>
+        </c-card>
+
+        <!-- Portfolio -->
+        <c-card class="mb-4">
+          <c-card-header>
+            <h5>Portfolio</h5>
+          </c-card-header>
+          <c-card-body>
+            @if (contractorUser()!.contractorProfile!.portfolio && contractorUser()!.contractorProfile!.portfolio!.length > 0) {
+              <c-row>
+                @for (item of contractorUser()!.contractorProfile!.portfolio; track item.id) {
+                  <c-col xs="12" md="6" class="mb-3">
+                    <c-card>
+                      @if (item.imageUrl) {
+                        <img [src]="item.imageUrl" class="card-img-top" [alt]="item.title" style="height: 200px; object-fit: cover;">
+                      }
+                      <c-card-body>
+                        <h6>{{ item.title }}</h6>
+                        <p class="small text-muted">{{ item.description }}</p>
+                        @if (item.tags && item.tags.length > 0) {
+                          <div class="mb-2">
+                            @for (tag of item.tags; track tag) {
+                              <c-badge color="info" class="me-1 mb-1">{{ tag }}</c-badge>
+                            }
+                          </div>
+                        }
+                        @if (item.link) {
+                          <a [href]="item.link" target="_blank" cButton color="primary" size="sm">
+                            View Project
+                          </a>
+                        }
+                      </c-card-body>
+                    </c-card>
+                  </c-col>
+                }
+              </c-row>
+            } @else {
+              <p class="text-muted">No portfolio items yet</p>
+            }
+          </c-card-body>
+        </c-card>
+      }
+
       <c-card class="mb-4">
         <c-card-header>
           <h5>Skills & Expertise</h5>

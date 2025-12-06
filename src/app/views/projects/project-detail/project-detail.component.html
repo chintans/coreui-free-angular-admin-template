@@ -67,6 +67,9 @@
                         @if (action.assignedResource) {
                           <c-badge color="success" class="ms-2">Assigned</c-badge>
                         }
+                        @if (getActionContractor(action)) {
+                          <c-badge color="warning" class="ms-2">Contractor Assigned</c-badge>
+                        }
                       </div>
                       <p class="text-muted small mb-2">{{ action.description }}</p>
                       <div class="d-flex gap-2">
@@ -80,28 +83,57 @@
                             {{ action.assignedResource.fullName }}
                           </small>
                         }
+                        @if (getActionContractor(action)) {
+                          <small class="text-muted">
+                            <svg cIcon name="cilPeople" size="sm" class="me-1"></svg>
+                            Contractor: {{ getContractorName(getActionContractor(action)!) }}
+                          </small>
+                        }
                       </div>
                     </div>
                     <div class="d-flex gap-2">
-                      @if (!action.assignedResource) {
-                        <button
-                          cButton
-                          color="link"
-                          size="sm"
-                          (click)="openResourceModal(action.id)"
-                        >
-                          <svg cIcon name="cilUserPlus" class="me-1"></svg>
-                          Assign
-                        </button>
-                        <button
-                          cButton
-                          color="link"
-                          size="sm"
-                          (click)="viewMarketplace(action.id, action.category)"
-                        >
-                          <svg cIcon name="cilStore" class="me-1"></svg>
-                          View Resource
-                        </button>
+                      @if (isConsultantOrAdmin()) {
+                        @if (!action.assignedResource && !getActionContractor(action)) {
+                          <button
+                            cButton
+                            color="link"
+                            size="sm"
+                            (click)="openResourceModal(action.id)"
+                          >
+                            <svg cIcon name="cilUserPlus" class="me-1"></svg>
+                            Assign Resource
+                          </button>
+                          <button
+                            cButton
+                            color="link"
+                            size="sm"
+                            (click)="openContractorModal(action.id)"
+                          >
+                            <svg cIcon name="cilPeople" class="me-1"></svg>
+                            Assign Contractor
+                          </button>
+                          <button
+                            cButton
+                            color="link"
+                            size="sm"
+                            (click)="viewMarketplace(action.id, action.category)"
+                          >
+                            <svg cIcon name="cilStore" class="me-1"></svg>
+                            View Marketplace
+                          </button>
+                        }
+                        @if (getActionContractor(action)) {
+                          <button
+                            cButton
+                            color="link"
+                            size="sm"
+                            color="danger"
+                            (click)="removeContractorFromAction(action.id)"
+                          >
+                            <svg cIcon name="cilTrash" class="me-1"></svg>
+                            Remove Contractor
+                          </button>
+                        }
                       }
                       <button
                         cButton
@@ -131,6 +163,45 @@
 
     <!-- Project Artifacts -->
     <c-col xs="12" lg="4" class="mb-4">
+      @if (isConsultantOrAdmin()) {
+        <!-- Assigned Contractors -->
+        <c-card class="mb-3">
+          <c-card-header>
+            <div class="d-flex justify-content-between align-items-center">
+              <strong>Assigned Contractors</strong>
+              <button cButton color="primary" size="sm" (click)="openContractorModal()">
+                <svg cIcon name="cilPlus" class="me-1"></svg>
+                Assign Contractor
+              </button>
+            </div>
+          </c-card-header>
+          <c-card-body>
+            @if (getAssignedContractors().length > 0) {
+              <ul cListGroup>
+                @for (contractorId of getAssignedContractors(); track contractorId) {
+                  <li cListGroupItem>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span>{{ getContractorName(contractorId) }}</span>
+                      <button
+                        cButton
+                        color="danger"
+                        size="sm"
+                        variant="outline"
+                        (click)="removeContractorFromProject(contractorId)"
+                      >
+                        <svg cIcon name="cilTrash"></svg>
+                      </button>
+                    </div>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="text-muted text-center small">No contractors assigned</p>
+            }
+          </c-card-body>
+        </c-card>
+      }
+
       <c-card>
         <c-card-header>
           <strong>Project Artifacts</strong>
@@ -324,6 +395,46 @@
     <button cButton color="secondary" (click)="closeActionModal()">Cancel</button>
     <button cButton color="primary" (click)="saveAction()" [disabled]="actionForm.invalid">
       {{ selectedActionId() ? 'Update' : 'Add' }} Action
+    </button>
+  </c-modal-footer>
+</c-modal>
+
+<!-- Assign Contractor Modal -->
+<c-modal [visible]="showContractorModal()" (visibleChange)="showContractorModal.set($event)">
+  <c-modal-header>
+    <h5 cModalTitle>{{ selectedActionId() ? 'Assign Contractor to Task' : 'Assign Contractor to Project' }}</h5>
+    <button cButtonClose (click)="closeContractorModal()"></button>
+  </c-modal-header>
+  <c-modal-body>
+    <div class="mb-3">
+      <label cLabel>Select Contractor</label>
+      <select
+        cFormControl
+        class="form-select"
+        [value]="selectedContractorId()"
+        (change)="selectedContractorId.set($any($event.target).value)"
+      >
+        <option value="">-- Select Contractor --</option>
+        @for (contractor of contractors(); track contractor.id) {
+          <option [value]="contractor.id">{{ contractor.name }} ({{ contractor.email }})</option>
+        }
+      </select>
+    </div>
+    @if (contractors().length === 0) {
+      <c-alert color="info">
+        No contractors available. Super Admin can create contractors from the Users page.
+      </c-alert>
+    }
+  </c-modal-body>
+  <c-modal-footer>
+    <button cButton color="secondary" (click)="closeContractorModal()">Cancel</button>
+    <button
+      cButton
+      color="primary"
+      (click)="selectedActionId() ? assignContractorToAction() : assignContractorToProject()"
+      [disabled]="!selectedContractorId()"
+    >
+      Assign Contractor
     </button>
   </c-modal-footer>
 </c-modal>

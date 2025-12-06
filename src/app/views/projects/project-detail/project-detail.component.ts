@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import type { OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -20,11 +20,16 @@ import {
   ButtonCloseDirective,
   FormModule,
   ListGroupDirective,
-  ListGroupItemDirective
+  ListGroupItemDirective,
+  AlertComponent,
+  AlertModule
 } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
 import { ProjectService } from '../../../core/services/project.service';
+import { UserService } from '../../../core/services/user.service';
+import { AuthService } from '../../../core/services/auth.service';
 import type { Project, StrategicAction, Resource } from '../../../core/models/project.models';
+import { UserRole } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-project-detail',
@@ -50,7 +55,9 @@ import type { Project, StrategicAction, Resource } from '../../../core/models/pr
     FormModule,
     ListGroupDirective,
     ListGroupItemDirective,
-    IconDirective
+    IconDirective,
+    AlertComponent,
+    AlertModule
   ],
   templateUrl: './project-detail.component.html',
   styleUrls: ['./project-detail.component.scss']
@@ -59,6 +66,8 @@ export class ProjectDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly projectService = inject(ProjectService);
+  private readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
   private readonly fb = inject(FormBuilder);
 
   projectId = signal<string>('');
@@ -66,7 +75,16 @@ export class ProjectDetailComponent implements OnInit {
   showChatModal = signal(false);
   showActionModal = signal(false);
   showResourceModal = signal(false);
+  showContractorModal = signal(false);
   selectedActionId = signal<string | null>(null);
+  selectedContractorId = signal<string | null>(null);
+  
+  readonly contractors = this.userService.contractors;
+  readonly userRole = this.authService.userRole;
+  readonly isConsultantOrAdmin = computed(() => {
+    const role = this.userRole();
+    return role === UserRole.CONSULTANT || role === UserRole.SUPER_ADMIN;
+  });
 
   actionForm = this.fb.group({
     title: ['', Validators.required],
@@ -240,6 +258,64 @@ export class ProjectDetailComponent implements OnInit {
         }
       });
     }
+  }
+
+  openContractorModal(actionId?: string): void {
+    this.selectedActionId.set(actionId ?? null);
+    this.selectedContractorId.set(null);
+    this.showContractorModal.set(true);
+  }
+
+  closeContractorModal(): void {
+    this.showContractorModal.set(false);
+    this.selectedActionId.set(null);
+    this.selectedContractorId.set(null);
+  }
+
+  assignContractorToProject(): void {
+    const contractorId = this.selectedContractorId();
+    if (contractorId && this.projectId()) {
+      this.projectService.assignContractorToProject(this.projectId(), contractorId);
+      this.updateProject();
+      this.closeContractorModal();
+    }
+  }
+
+  assignContractorToAction(): void {
+    const contractorId = this.selectedContractorId();
+    const actionId = this.selectedActionId();
+    if (contractorId && actionId && this.projectId()) {
+      this.projectService.assignContractorToAction(this.projectId(), actionId, contractorId);
+      this.updateProject();
+      this.closeContractorModal();
+    }
+  }
+
+  removeContractorFromProject(contractorId: string): void {
+    if (this.projectId()) {
+      this.projectService.removeContractorFromProject(this.projectId(), contractorId);
+      this.updateProject();
+    }
+  }
+
+  removeContractorFromAction(actionId: string): void {
+    if (this.projectId()) {
+      this.projectService.removeContractorFromAction(this.projectId(), actionId);
+      this.updateProject();
+    }
+  }
+
+  getContractorName(contractorId: string): string {
+    const contractor = this.userService.getUserById(contractorId);
+    return contractor?.name || 'Unknown';
+  }
+
+  getAssignedContractors(): string[] {
+    return this.project()?.contractorIds || [];
+  }
+
+  getActionContractor(action: StrategicAction): string | undefined {
+    return action.contractorId;
   }
 
   private updateProject(): void {

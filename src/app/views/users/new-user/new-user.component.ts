@@ -15,6 +15,7 @@ import {
 } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
 import { UserService } from '../../../core/services/user.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { UserRole } from '../../../core/models/user.model';
 
 @Component({
@@ -42,6 +43,7 @@ export class NewUserComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
 
   userId = signal<string | null>(null);
   isEditMode = signal(false);
@@ -58,7 +60,7 @@ export class NewUserComponent implements OnInit {
     confirmPassword: ['']
   });
 
-  roles: Array<{ value: UserRole; label: string; description: string }> = [
+  private readonly allRoles: Array<{ value: UserRole; label: string; description: string }> = [
     {
       value: UserRole.SUPER_ADMIN,
       label: 'Super Admin',
@@ -73,10 +75,20 @@ export class NewUserComponent implements OnInit {
       value: UserRole.CLIENT,
       label: 'Client',
       description: 'Can access client portal and view assigned projects'
+    },
+    {
+      value: UserRole.CONTRACTOR,
+      label: 'Contractor',
+      description: 'Can manage profile, collaborate on projects, and communicate with consultants'
     }
   ];
 
+  roles: Array<{ value: UserRole; label: string; description: string }> = [];
+
   ngOnInit(): void {
+    // Filter roles based on current user's permissions
+    this.filterRolesByPermission();
+
     this.route.params.subscribe(params => {
       const id = params['id'];
       if (id) {
@@ -91,9 +103,39 @@ export class NewUserComponent implements OnInit {
         this.userForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
         this.userForm.get('confirmPassword')?.setValidators([Validators.required]);
         this.userForm.addValidators(this.passwordMatchValidator);
+        
+        // Set default role to first available role
+        if (this.roles.length > 0) {
+          this.userForm.patchValue({ role: this.roles[0].value });
+        }
       }
       this.userForm.updateValueAndValidity();
     });
+  }
+
+  private filterRolesByPermission(): void {
+    const currentUser = this.authService.currentUser();
+    if (!currentUser) {
+      this.roles = [];
+      return;
+    }
+
+    switch (currentUser.role) {
+      case UserRole.SUPER_ADMIN:
+        // Super Admin can only create Consultants and Contractors
+        this.roles = this.allRoles.filter(
+          r => r.value === UserRole.CONSULTANT || r.value === UserRole.CONTRACTOR
+        );
+        break;
+      case UserRole.CONSULTANT:
+        // Consultant can only create Clients
+        this.roles = this.allRoles.filter(r => r.value === UserRole.CLIENT);
+        break;
+      default:
+        // Other roles cannot create users
+        this.roles = [];
+        break;
+    }
   }
 
   private passwordMatchValidator = (): { passwordMismatch: boolean } | null => {
@@ -153,13 +195,30 @@ export class NewUserComponent implements OnInit {
       return;
     }
 
+    // Validate that the selected role is allowed for the current user
+    const selectedRole = formValue.role as UserRole;
+    const isRoleAllowed = this.roles.some(r => r.value === selectedRole);
+    if (!isRoleAllowed) {
+      this.errorMessage.set('You do not have permission to create users with this role');
+      this.isLoading.set(false);
+      return;
+    }
+
+    const contractorProfile = formValue.role === UserRole.CONTRACTOR ? {
+      useCases: [],
+      clientTestimonials: [],
+      recentWork: [],
+      portfolio: []
+    } : undefined;
+
     this.userService
       .createUser({
         username: formValue.username ?? '',
         email: formValue.email ?? '',
         name: formValue.name ?? '',
         role: formValue.role ?? UserRole.CLIENT,
-        password: formValue.password ?? ''
+        password: formValue.password ?? '',
+        contractorProfile
       })
       .subscribe({
         next: () => {
@@ -234,7 +293,8 @@ export class NewUserComponent implements OnInit {
     const iconMap: Record<UserRole, string> = {
       [UserRole.SUPER_ADMIN]: 'cilUser',
       [UserRole.CONSULTANT]: 'cilBriefcase',
-      [UserRole.CLIENT]: 'cilUserFollow'
+      [UserRole.CLIENT]: 'cilUserFollow',
+      [UserRole.CONTRACTOR]: 'cilPeople'
     };
     return iconMap[role] ?? 'cilUser';
   }

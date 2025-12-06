@@ -150,6 +150,8 @@ export class DefaultHeaderComponent extends HeaderComponent {
         return 'primary';
       case 'client':
         return 'success';
+      case 'contractor':
+        return 'warning';
       default:
         return 'secondary';
     }
@@ -164,6 +166,8 @@ export class DefaultHeaderComponent extends HeaderComponent {
         return 'Consultant';
       case 'client':
         return 'Client';
+      case 'contractor':
+        return 'Contractor';
       default:
         return 'User';
     }

@@ -26,7 +26,7 @@ export const routes: Routes = [
         path: 'projects',
         loadChildren: () => import('./views/projects/routes').then((m) => m.routes),
         canActivate: [roleGuard],
-        data: { roles: [UserRole.CONSULTANT, UserRole.SUPER_ADMIN] }
+        data: { roles: [UserRole.CONSULTANT, UserRole.SUPER_ADMIN, UserRole.CONTRACTOR] }
       },
       {
         path: 'marketplace',
@@ -39,6 +39,12 @@ export const routes: Routes = [
         loadChildren: () => import('./views/client-portal/routes').then((m) => m.routes),
         canActivate: [roleGuard],
         data: { roles: [UserRole.CLIENT] }
+      },
+      {
+        path: 'contractor',
+        loadChildren: () => import('./views/contractor/routes').then((m) => m.routes),
+        canActivate: [roleGuard],
+        data: { roles: [UserRole.CONTRACTOR] }
       },
       {
         path: 'users',
@@ -72,13 +78,6 @@ export const routes: Routes = [
     canActivate: [loginGuard],
     data: {
       title: 'Login Page'
-    }
-  },
-  {
-    path: 'register',
-    loadComponent: () => import('./views/pages/register/register.component').then(m => m.RegisterComponent),
-    data: {
-      title: 'Register Page'
     }
   },
   { path: '**', redirectTo: 'dashboard' }

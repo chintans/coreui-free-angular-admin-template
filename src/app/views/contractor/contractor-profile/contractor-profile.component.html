@@ -1,0 +1,337 @@
+<div class="container-fluid">
+  <c-card>
+    <c-card-header>
+      <strong>Contractor Profile</strong>
+    </c-card-header>
+    <c-card-body>
+      @if (errorMessage()) {
+        <c-alert color="danger" [dismissible]="true" (dismissed)="errorMessage.set(null)">
+          {{ errorMessage() }}
+        </c-alert>
+      }
+      @if (successMessage()) {
+        <c-alert color="success" [dismissible]="true" (dismissed)="successMessage.set(null)">
+          {{ successMessage() }}
+        </c-alert>
+      }
+
+      <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+        <!-- Use Cases Section -->
+        <div class="mb-4">
+          <h5 class="mb-3">Use Cases</h5>
+          <div formArrayName="useCases">
+            @for (useCase of useCasesFormArray.controls; track $index) {
+              <c-row class="mb-2">
+                <c-col [md]="10">
+                  <input
+                    cFormControl
+                    type="text"
+                    [formControlName]="$index"
+                    placeholder="Enter use case (e.g., Web Development, Mobile App Development)"
+                    class="mb-2"
+                  />
+                </c-col>
+                <c-col [md]="2">
+                  <button
+                    cButton
+                    color="danger"
+                    variant="outline"
+                    (click)="removeUseCase($index)"
+                    type="button"
+                  >
+                    <svg cIcon name="cilTrash"></svg>
+                  </button>
+                </c-col>
+              </c-row>
+            }
+            <button
+              cButton
+              color="secondary"
+              variant="outline"
+              (click)="addUseCase()"
+              type="button"
+            >
+              <svg cIcon name="cilPlus"></svg> Add Use Case
+            </button>
+          </div>
+        </div>
+
+        <!-- Client Testimonials Section -->
+        <div class="mb-4">
+          <h5 class="mb-3">Client Testimonials</h5>
+          <div formArrayName="clientTestimonials">
+            @for (testimonial of testimonialsFormArray.controls; track $index) {
+              <c-card class="mb-3">
+                <c-card-body>
+                  <c-row class="mb-2">
+                    <c-col [md]="6">
+                      <label cLabel>Client Name *</label>
+                      <input
+                        cFormControl
+                        type="text"
+                        [formControl]="$any(testimonial.get('clientName'))"
+                        placeholder="Client Name"
+                      />
+                    </c-col>
+                    <c-col [md]="6">
+                      <label cLabel>Client Company</label>
+                      <input
+                        cFormControl
+                        type="text"
+                        [formControl]="$any(testimonial.get('clientCompany'))"
+                        placeholder="Company Name"
+                      />
+                    </c-col>
+                  </c-row>
+                  <div class="mb-2">
+                    <label cLabel>Testimonial *</label>
+                    <textarea
+                      cFormControl
+                      [formControl]="$any(testimonial.get('testimonial'))"
+                      rows="3"
+                      placeholder="Client testimonial..."
+                    ></textarea>
+                  </div>
+                  <c-row>
+                    <c-col [md]="6">
+                      <label cLabel>Rating (1-5) *</label>
+                      <input
+                        cFormControl
+                        type="number"
+                        [formControl]="$any(testimonial.get('rating'))"
+                        min="1"
+                        max="5"
+                      />
+                    </c-col>
+                    <c-col [md]="6" class="d-flex align-items-end">
+                      <button
+                        cButton
+                        color="danger"
+                        variant="outline"
+                        (click)="removeTestimonial($index)"
+                        type="button"
+                      >
+                        <svg cIcon name="cilTrash"></svg> Remove
+                      </button>
+                    </c-col>
+                  </c-row>
+                </c-card-body>
+              </c-card>
+            }
+            <button
+              cButton
+              color="secondary"
+              variant="outline"
+              (click)="addTestimonial()"
+              type="button"
+            >
+              <svg cIcon name="cilPlus"></svg> Add Testimonial
+            </button>
+          </div>
+        </div>
+
+        <!-- Recent Work Section -->
+        <div class="mb-4">
+          <h5 class="mb-3">Recent Work</h5>
+          <div formArrayName="recentWork">
+            @for (work of recentWorkFormArray.controls; track $index) {
+              <c-card class="mb-3">
+                <c-card-body>
+                  <c-row class="mb-2">
+                    <c-col [md]="6">
+                      <label cLabel>Title *</label>
+                      <input
+                        cFormControl
+                        type="text"
+                        [formControl]="$any(work.get('title'))"
+                        placeholder="Project Title"
+                      />
+                    </c-col>
+                    <c-col [md]="6">
+                      <label cLabel>Client Name</label>
+                      <input
+                        cFormControl
+                        type="text"
+                        [formControl]="$any(work.get('clientName'))"
+                        placeholder="Client Name"
+                      />
+                    </c-col>
+                  </c-row>
+                  <div class="mb-2">
+                    <label cLabel>Description *</label>
+                    <textarea
+                      cFormControl
+                      [formControl]="$any(work.get('description'))"
+                      rows="3"
+                      placeholder="Project description..."
+                    ></textarea>
+                  </div>
+                  <c-row>
+                    <c-col [md]="6">
+                      <label cLabel>Category</label>
+                      <input
+                        cFormControl
+                        type="text"
+                        [formControl]="$any(work.get('category'))"
+                        placeholder="Category"
+                      />
+                    </c-col>
+                    <c-col [md]="6" class="d-flex align-items-end">
+                      <button
+                        cButton
+                        color="danger"
+                        variant="outline"
+                        (click)="removeRecentWork($index)"
+                        type="button"
+                      >
+                        <svg cIcon name="cilTrash"></svg> Remove
+                      </button>
+                    </c-col>
+                  </c-row>
+                </c-card-body>
+              </c-card>
+            }
+            <button
+              cButton
+              color="secondary"
+              variant="outline"
+              (click)="addRecentWork()"
+              type="button"
+            >
+              <svg cIcon name="cilPlus"></svg> Add Recent Work
+            </button>
+          </div>
+        </div>
+
+        <!-- Portfolio Section -->
+        <div class="mb-4">
+          <h5 class="mb-3">Portfolio</h5>
+          <div formArrayName="portfolio">
+            @for (item of portfolioFormArray.controls; track $index; let portfolioIndex = $index) {
+              <c-card class="mb-3">
+                <c-card-body>
+                  <c-row class="mb-2">
+                    <c-col [md]="6">
+                      <label cLabel>Title *</label>
+                      <input
+                        cFormControl
+                        type="text"
+                        [formControl]="$any(item.get('title'))"
+                        placeholder="Portfolio Item Title"
+                      />
+                    </c-col>
+                    <c-col [md]="6">
+                      <label cLabel>Category</label>
+                      <input
+                        cFormControl
+                        type="text"
+                        [formControl]="$any(item.get('category'))"
+                        placeholder="Category"
+                      />
+                    </c-col>
+                  </c-row>
+                  <div class="mb-2">
+                    <label cLabel>Description *</label>
+                    <textarea
+                      cFormControl
+                      [formControl]="$any(item.get('description'))"
+                      rows="3"
+                      placeholder="Portfolio item description..."
+                    ></textarea>
+                  </div>
+                  <c-row class="mb-2">
+                    <c-col [md]="6">
+                      <label cLabel>Image URL</label>
+                      <input
+                        cFormControl
+                        type="url"
+                        [formControl]="$any(item.get('imageUrl'))"
+                        placeholder="https://example.com/image.jpg"
+                      />
+                    </c-col>
+                    <c-col [md]="6">
+                      <label cLabel>Link</label>
+                      <input
+                        cFormControl
+                        type="url"
+                        [formControl]="$any(item.get('link'))"
+                        placeholder="https://example.com"
+                      />
+                    </c-col>
+                  </c-row>
+                    <div class="mb-2">
+                    <label cLabel>Tags</label>
+                    <div>
+                      @if (getPortfolioTags(portfolioIndex)) {
+                        @for (tag of getPortfolioTags(portfolioIndex).controls; track $index) {
+                          <c-badge color="info" class="me-2 mb-2">
+                            {{ tag.value }}
+                            <button
+                              type="button"
+                              class="btn-close btn-close-white ms-1"
+                              (click)="removePortfolioTag(portfolioIndex, $index)"
+                            ></button>
+                          </c-badge>
+                        }
+                      }
+                      <input
+                        type="text"
+                        class="form-control d-inline-block"
+                        style="width: 200px;"
+                        placeholder="Add tag"
+                        #tagInput
+                        (keyup.enter)="addPortfolioTag(portfolioIndex, tagInput.value); tagInput.value = ''"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    cButton
+                    color="danger"
+                    variant="outline"
+                    (click)="removePortfolioItem(portfolioIndex)"
+                    type="button"
+                  >
+                    <svg cIcon name="cilTrash"></svg> Remove
+                  </button>
+                </c-card-body>
+              </c-card>
+            }
+            <button
+              cButton
+              color="secondary"
+              variant="outline"
+              (click)="addPortfolioItem()"
+              type="button"
+            >
+              <svg cIcon name="cilPlus"></svg> Add Portfolio Item
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="d-flex justify-content-end gap-2">
+          <button
+            cButton
+            color="secondary"
+            (click)="router.navigate(['/dashboard'])"
+            type="button"
+          >
+            Cancel
+          </button>
+          <button
+            cButton
+            color="primary"
+            type="submit"
+            [disabled]="isLoading() || profileForm.invalid"
+          >
+            @if (isLoading()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            Save Profile
+          </button>
+        </div>
+      </form>
+    </c-card-body>
+  </c-card>
+</div>
+

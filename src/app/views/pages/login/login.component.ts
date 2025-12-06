@@ -45,15 +45,15 @@ export class LoginComponent {
   private readonly router = inject(Router);
 
   loginForm: FormGroup = this.formBuilder.group({
-    username: ['', [Validators.required]],
+    email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]]
   });
 
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
 
-  get username() {
-    return this.loginForm.get('username')!;
+  get email() {
+    return this.loginForm.get('email')!;
   }
 
   get password() {
@@ -70,7 +70,7 @@ export class LoginComponent {
     this.errorMessage.set(null);
 
     const credentials = {
-      username: this.username.value,
+      email: this.email.value,
       password: this.password.value
     };
 

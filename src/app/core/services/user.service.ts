@@ -9,6 +9,7 @@ interface CreateUserData {
   role: UserRole;
   password: string;
   avatar?: string;
+  contractorProfile?: import('../models/user.model').ContractorProfile;
 }
 
 interface UpdateUserData {
@@ -17,6 +18,7 @@ interface UpdateUserData {
   name?: string;
   role?: UserRole;
   avatar?: string;
+  contractorProfile?: import('../models/user.model').ContractorProfile;
 }
 
 @Injectable({
@@ -37,6 +39,9 @@ export class UserService {
   );
   readonly clients = computed(() =>
     this.usersSignal().filter(u => u.role === UserRole.CLIENT)
+  );
+  readonly contractors = computed(() =>
+    this.usersSignal().filter(u => u.role === UserRole.CONTRACTOR)
   );
   readonly admins = computed(() =>
     this.usersSignal().filter(u => u.role === UserRole.SUPER_ADMIN)
@@ -81,7 +86,8 @@ export class UserService {
       email: userData.email,
       name: userData.name,
       role: userData.role,
-      avatar: userData.avatar
+      avatar: userData.avatar,
+      contractorProfile: userData.contractorProfile
     };
 
     // Add user to signal
@@ -233,6 +239,122 @@ export class UserService {
           role: UserRole.CLIENT,
           name: 'Jane Client',
           avatar: '3.jpg'
+        },
+        {
+          id: '4',
+          username: 'contractor1',
+          email: 'contractor1@scalex.com',
+          role: UserRole.CONTRACTOR,
+          name: 'Mike Contractor',
+          avatar: '4.jpg',
+          contractorProfile: {
+            useCases: [
+              'Web Development',
+              'Mobile App Development',
+              'E-commerce Solutions',
+              'API Integration',
+              'Cloud Architecture',
+              'UI/UX Design'
+            ],
+            clientTestimonials: [
+              {
+                id: 't1',
+                clientName: 'Sarah Johnson',
+                clientCompany: 'TechStart Inc',
+                testimonial: 'Mike delivered an exceptional web application that exceeded our expectations. His attention to detail and technical expertise helped us launch our product ahead of schedule. Highly recommended!',
+                rating: 5,
+                date: new Date('2024-01-15')
+              },
+              {
+                id: 't2',
+                clientName: 'David Chen',
+                clientCompany: 'InnovateLabs',
+                testimonial: 'Working with Mike was a pleasure. He transformed our mobile app idea into a polished, user-friendly application. His communication throughout the project was excellent.',
+                rating: 5,
+                date: new Date('2023-11-20')
+              },
+              {
+                id: 't3',
+                clientName: 'Emily Rodriguez',
+                clientCompany: 'GrowthCo',
+                testimonial: 'Mike\'s expertise in cloud architecture helped us scale our infrastructure efficiently. The solution he provided is robust and cost-effective. We\'re very satisfied with the results.',
+                rating: 4,
+                date: new Date('2023-10-10')
+              }
+            ],
+            recentWork: [
+              {
+                id: 'w1',
+                title: 'E-commerce Platform for Retail Chain',
+                description: 'Developed a full-stack e-commerce solution with payment integration, inventory management, and admin dashboard. Implemented responsive design and optimized for performance.',
+                clientName: 'RetailMax',
+                completedDate: new Date('2024-01-30'),
+                category: 'E-commerce'
+              },
+              {
+                id: 'w2',
+                title: 'Mobile Banking App',
+                description: 'Built a secure mobile banking application with biometric authentication, transaction history, and bill payment features. Ensured compliance with financial regulations.',
+                clientName: 'FinTech Solutions',
+                completedDate: new Date('2023-12-15'),
+                category: 'Finance'
+              },
+              {
+                id: 'w3',
+                title: 'Healthcare Management System',
+                description: 'Created a comprehensive healthcare management system with patient records, appointment scheduling, and telemedicine capabilities. Integrated with multiple third-party APIs.',
+                clientName: 'HealthCare Plus',
+                completedDate: new Date('2023-11-05'),
+                category: 'Healthcare'
+              },
+              {
+                id: 'w4',
+                title: 'Real Estate Listing Platform',
+                description: 'Developed a property listing platform with advanced search filters, virtual tour integration, and CRM functionality. Implemented real-time notifications and messaging system.',
+                clientName: 'PropertyHub',
+                completedDate: new Date('2023-09-20'),
+                category: 'Real Estate'
+              }
+            ],
+            portfolio: [
+              {
+                id: 'p1',
+                title: 'SaaS Dashboard Application',
+                description: 'Modern SaaS dashboard with real-time analytics, user management, and customizable widgets. Built with Angular and integrated with multiple data sources.',
+                imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',
+                link: 'https://example.com/portfolio/saas-dashboard',
+                category: 'Web Application',
+                tags: ['Angular', 'TypeScript', 'REST API', 'Charts', 'Dashboard']
+              },
+              {
+                id: 'p2',
+                title: 'Fitness Tracking Mobile App',
+                description: 'Cross-platform mobile app for fitness tracking with workout plans, progress monitoring, and social features. Includes offline mode and data synchronization.',
+                imageUrl: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800',
+                link: 'https://example.com/portfolio/fitness-app',
+                category: 'Mobile App',
+                tags: ['React Native', 'Firebase', 'Health API', 'Mobile']
+              },
+              {
+                id: 'p3',
+                title: 'Cloud Migration Project',
+                description: 'Migrated legacy on-premise infrastructure to AWS cloud with zero downtime. Implemented CI/CD pipelines, auto-scaling, and disaster recovery solutions.',
+                imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800',
+                link: 'https://example.com/portfolio/cloud-migration',
+                category: 'DevOps',
+                tags: ['AWS', 'Docker', 'Kubernetes', 'CI/CD', 'Infrastructure']
+              },
+              {
+                id: 'p4',
+                title: 'E-learning Platform',
+                description: 'Comprehensive e-learning platform with video streaming, quizzes, progress tracking, and certification system. Supports multiple languages and payment gateways.',
+                imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800',
+                link: 'https://example.com/portfolio/elearning',
+                category: 'Education',
+                tags: ['Vue.js', 'Node.js', 'Video Streaming', 'Payment Integration']
+              }
+            ]
+          }
         }
       ];
 
@@ -254,7 +376,8 @@ export class UserService {
     const defaultCredentials: Record<string, string> = {
       '1': 'admin123',      // superadmin
       '2': 'consultant123', // consultant1
-      '3': 'client123'      // client1
+      '3': 'client123',     // client1
+      '4': 'contractor123' // contractor1
     };
 
     // Only set if not already present

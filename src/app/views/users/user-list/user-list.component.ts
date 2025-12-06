@@ -87,7 +87,8 @@ export class UserListComponent {
     const colorMap: Record<UserRole, string> = {
       [UserRole.SUPER_ADMIN]: 'danger',
       [UserRole.CONSULTANT]: 'info',
-      [UserRole.CLIENT]: 'success'
+      [UserRole.CLIENT]: 'success',
+      [UserRole.CONTRACTOR]: 'warning'
     };
     return colorMap[role] ?? 'secondary';
   }
@@ -96,7 +97,8 @@ export class UserListComponent {
     const labelMap: Record<UserRole, string> = {
       [UserRole.SUPER_ADMIN]: 'Super Admin',
       [UserRole.CONSULTANT]: 'Consultant',
-      [UserRole.CLIENT]: 'Client'
+      [UserRole.CLIENT]: 'Client',
+      [UserRole.CONTRACTOR]: 'Contractor'
     };
     return labelMap[role] ?? role;
   }

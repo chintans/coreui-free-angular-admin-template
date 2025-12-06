@@ -3,6 +3,7 @@ export interface Project {
 	name: string;
 	client: string;
 	consultantId?: string;
+	contractorIds?: string[];
 	status: ProjectStatus;
 	progress: number;
 	conversationType: ConversationType;
@@ -82,6 +83,7 @@ export interface StrategicAction {
 	status: "Pending" | "In Progress" | "Completed";
 	category: string;
 	assignedResource?: Resource;
+	contractorId?: string;
 	createdAt: Date;
 }
 

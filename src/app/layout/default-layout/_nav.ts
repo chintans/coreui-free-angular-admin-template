@@ -15,13 +15,13 @@ export const navItems: NavItemWithRole[] = [
       color: 'info',
       text: 'NEW'
     },
-    roles: [UserRole.SUPER_ADMIN, UserRole.CONSULTANT, UserRole.CLIENT]
+    roles: [UserRole.SUPER_ADMIN, UserRole.CONSULTANT, UserRole.CLIENT, UserRole.CONTRACTOR]
   },
   {
     name: 'Projects',
     url: '/projects',
     iconComponent: { name: 'cil-briefcase' },
-    roles: [UserRole.SUPER_ADMIN, UserRole.CONSULTANT]
+    roles: [UserRole.SUPER_ADMIN, UserRole.CONSULTANT, UserRole.CONTRACTOR]
   },
   {
     name: 'Marketplace',
@@ -34,6 +34,12 @@ export const navItems: NavItemWithRole[] = [
     url: '/client-portal',
     iconComponent: { name: 'cil-user' },
     roles: [UserRole.CLIENT]
+  },
+  {
+    name: 'My Profile',
+    url: '/contractor/profile',
+    iconComponent: { name: 'cil-user' },
+    roles: [UserRole.CONTRACTOR]
   },
   {
     name: 'Users',

@@ -13,9 +13,10 @@ import {
 } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
 import { MarketplaceService } from '../../../core/services/marketplace.service';
+import { UserService } from '../../../core/services/user.service';
 import { AuthService } from '../../../core/services/auth.service';
 import type { Provider } from '../../../core/models/project.models';
-import { UserRole } from '../../../core/models/user.model';
+import { UserRole, User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-contractor-detail',
@@ -40,10 +41,12 @@ export class ContractorDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly marketplaceService = inject(MarketplaceService);
+  private readonly userService = inject(UserService);
   private readonly authService = inject(AuthService);
 
   readonly contractorId = signal<string | null>(null);
   readonly contractor = signal<Provider | undefined>(undefined);
+  readonly contractorUser = signal<User | undefined>(undefined);
   readonly isSuperAdmin = computed(() => this.authService.userRole() === UserRole.SUPER_ADMIN);
 
   ngOnInit(): void {
@@ -53,7 +56,13 @@ export class ContractorDetailComponent implements OnInit {
       const contractor = this.marketplaceService.getProviderById(id);
       this.contractor.set(contractor);
       
-      if (!contractor) {
+      // Also check if this is a contractor user
+      const contractorUser = this.userService.getUserById(id);
+      if (contractorUser && contractorUser.role === UserRole.CONTRACTOR) {
+        this.contractorUser.set(contractorUser);
+      }
+      
+      if (!contractor && !contractorUser) {
         this.router.navigate(['/marketplace']);
       }
     });

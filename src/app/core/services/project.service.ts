@@ -126,6 +126,73 @@ export class ProjectService {
     return this.projectsSignal().filter(p => p.consultantId === consultantId);
   }
 
+  /**
+   * Get projects assigned to a contractor
+   */
+  getProjectsByContractor(contractorId: string): Project[] {
+    return this.projectsSignal().filter(p => 
+      p.contractorIds?.includes(contractorId) || 
+      p.strategicActions?.some(action => action.contractorId === contractorId)
+    );
+  }
+
+  /**
+   * Assign contractor to a project
+   */
+  assignContractorToProject(projectId: string, contractorId: string): void {
+    const project = this.getProjectById(projectId);
+    if (project) {
+      const contractorIds = project.contractorIds || [];
+      if (!contractorIds.includes(contractorId)) {
+        this.updateProject(projectId, {
+          contractorIds: [...contractorIds, contractorId]
+        });
+      }
+    }
+  }
+
+  /**
+   * Remove contractor from a project
+   */
+  removeContractorFromProject(projectId: string, contractorId: string): void {
+    const project = this.getProjectById(projectId);
+    if (project?.contractorIds) {
+      const updatedIds = project.contractorIds.filter(id => id !== contractorId);
+      this.updateProject(projectId, {
+        contractorIds: updatedIds.length > 0 ? updatedIds : undefined
+      });
+    }
+  }
+
+  /**
+   * Assign contractor to a strategic action (task)
+   */
+  assignContractorToAction(projectId: string, actionId: string, contractorId: string): void {
+    this.updateStrategicAction(projectId, actionId, { contractorId });
+  }
+
+  /**
+   * Remove contractor from a strategic action
+   */
+  removeContractorFromAction(projectId: string, actionId: string): void {
+    this.updateStrategicAction(projectId, actionId, { contractorId: undefined });
+  }
+
+  /**
+   * Get tasks assigned to a contractor
+   */
+  getTasksByContractor(contractorId: string): Array<{ project: Project; action: StrategicAction }> {
+    const results: Array<{ project: Project; action: StrategicAction }> = [];
+    this.projectsSignal().forEach(project => {
+      project.strategicActions?.forEach(action => {
+        if (action.contractorId === contractorId) {
+          results.push({ project, action });
+        }
+      });
+    });
+    return results;
+  }
+
   private getInitialProjects(): Project[] {
     return [
       {
