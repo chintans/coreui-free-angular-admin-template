@@ -1,13 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
-import { NgStyle } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { IconDirective } from '@coreui/icons-angular';
 import {
   ButtonDirective,
   CardBodyComponent,
   CardComponent,
-  CardGroupComponent,
   ColComponent,
   ContainerComponent,
   FormControlDirective,
@@ -25,7 +23,6 @@ import { AuthService } from '../../../core/services/auth.service';
     ContainerComponent,
     RowComponent,
     ColComponent,
-    CardGroupComponent,
     CardComponent,
     CardBodyComponent,
     FormDirective,
@@ -34,9 +31,7 @@ import { AuthService } from '../../../core/services/auth.service';
     InputGroupTextDirective,
     IconDirective,
     FormControlDirective,
-    ButtonDirective,
-    NgStyle,
-    RouterLink
+    ButtonDirective
   ]
 })
 export class LoginComponent {
