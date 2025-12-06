@@ -54,6 +54,29 @@ export class MarketplaceService {
 		return newProvider;
 	}
 
+	updateProvider(id: string, updates: Partial<Provider>): Provider | undefined {
+		const provider = this.getProviderById(id);
+		if (!provider) {
+			return undefined;
+		}
+		const updatedProvider: Provider = { ...provider, ...updates };
+		this.providersSignal.update((providers) =>
+			providers.map((p) => (p.id === id ? updatedProvider : p))
+		);
+		return updatedProvider;
+	}
+
+	deleteProvider(id: string): boolean {
+		const provider = this.getProviderById(id);
+		if (!provider) {
+			return false;
+		}
+		this.providersSignal.update((providers) =>
+			providers.filter((p) => p.id !== id)
+		);
+		return true;
+	}
+
 	private generateId(): string {
 		return Date.now().toString(36) + Math.random().toString(36).substr(2);
 	}

@@ -1,67 +1,178 @@
-<c-row class="mb-4">
-  <c-col xs="12">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h3>Projects</h3>
-      <button cButton color="primary" routerLink="/projects/new">
-        <svg cIcon class="me-2" name="cilPlus"></svg>
-        New Project
-      </button>
-    </div>
-  </c-col>
-</c-row>
+@if (isSuperAdmin()) {
+  <!-- Super Admin View: Show Consultants List -->
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Projects by Consultant</h3>
+      </div>
+    </c-col>
+  </c-row>
 
-@if (projects(); as projectList) {
-  @if (projectList.length === 0) {
-    <c-card class="mb-4">
-      <c-card-body class="text-center py-5">
-        <svg cIcon name="cilBriefcase" size="3xl" class="text-muted mb-3"></svg>
-        <h4>No projects yet</h4>
-        <p class="text-muted">Get started by creating your first project</p>
+  <c-row class="mb-4">
+    <c-col xs="12" md="4">
+      <c-card>
+        <c-card-header>
+          <h5>Select Consultant</h5>
+        </c-card-header>
+        <c-card-body>
+          @if (consultants(); as consultantList) {
+            @if (consultantList.length === 0) {
+              <p class="text-muted mb-0">No consultants available</p>
+            } @else {
+              <div class="list-group">
+                @for (consultant of consultantList; track consultant.id) {
+                  <button
+                    type="button"
+                    class="list-group-item list-group-item-action"
+                    [class.active]="selectedConsultantId() === consultant.id"
+                    (click)="onConsultantSelect(consultant.id)">
+                    <div class="d-flex w-100 justify-content-between align-items-center">
+                      <div>
+                        <h6 class="mb-1">{{ consultant.name }}</h6>
+                        <small class="text-muted">{{ consultant.email }}</small>
+                      </div>
+                      <c-badge color="primary">
+                        {{ consultantProjectCounts().get(consultant.id) ?? 0 }} projects
+                      </c-badge>
+                    </div>
+                  </button>
+                }
+              </div>
+            }
+          }
+        </c-card-body>
+      </c-card>
+    </c-col>
+    <c-col xs="12" md="8">
+      @if (selectedConsultantId(); as consultantId) {
+        @if (projects(); as projectList) {
+          @if (projectList.length === 0) {
+            <c-card>
+              <c-card-body class="text-center py-5">
+                <svg cIcon name="cilBriefcase" size="3xl" class="text-muted mb-3"></svg>
+                <h4>No projects for this consultant</h4>
+                <p class="text-muted">This consultant hasn't created any projects yet</p>
+              </c-card-body>
+            </c-card>
+          } @else {
+            <c-card>
+              <c-card-header>
+                <h5>Projects</h5>
+              </c-card-header>
+              <c-card-body>
+                <table cTable hover responsive>
+                  <thead>
+                    <tr>
+                      <th>Project Name</th>
+                      <th>Client</th>
+                      <th>Status</th>
+                      <th>Progress</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (project of projectList; track project.id) {
+                      <tr>
+                        <td>{{ project.name }}</td>
+                        <td>{{ project.client }}</td>
+                        <td>
+                          <c-badge [color]="getStatusColor(project.status)">
+                            {{ getStatusBadgeText(project.status) }}
+                          </c-badge>
+                        </td>
+                        <td>
+                          <c-progress [value]="project.progress" [color]="getStatusColor(project.status)" class="mb-0"></c-progress>
+                        </td>
+                        <td>
+                          <button cButton color="link" size="sm" [routerLink]="['/projects', project.id]">
+                            View Details
+                          </button>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </c-card-body>
+            </c-card>
+          }
+        }
+      } @else {
+        <c-card>
+          <c-card-body class="text-center py-5">
+            <svg cIcon name="cilUser" size="3xl" class="text-muted mb-3"></svg>
+            <h4>Select a Consultant</h4>
+            <p class="text-muted">Choose a consultant from the list to view their projects</p>
+          </c-card-body>
+        </c-card>
+      }
+    </c-col>
+  </c-row>
+} @else {
+  <!-- Regular Consultant View -->
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Projects</h3>
         <button cButton color="primary" routerLink="/projects/new">
           <svg cIcon class="me-2" name="cilPlus"></svg>
-          Create New Project
+          New Project
         </button>
-      </c-card-body>
-    </c-card>
-  } @else {
-    <c-row>
-      @for (project of projectList; track project.id) {
-        <c-col xs="12" md="6" lg="4" class="mb-4">
-          <c-card class="h-100">
-            <c-card-header>
-              <div class="d-flex justify-content-between align-items-start">
-                <div>
-                  <h5 class="mb-1">{{ project.name }}</h5>
-                  <p class="text-muted small mb-0">{{ project.client }}</p>
+      </div>
+    </c-col>
+  </c-row>
+
+  @if (projects(); as projectList) {
+    @if (projectList.length === 0) {
+      <c-card class="mb-4">
+        <c-card-body class="text-center py-5">
+          <svg cIcon name="cilBriefcase" size="3xl" class="text-muted mb-3"></svg>
+          <h4>No projects yet</h4>
+          <p class="text-muted">Get started by creating your first project</p>
+          <button cButton color="primary" routerLink="/projects/new">
+            <svg cIcon class="me-2" name="cilPlus"></svg>
+            Create New Project
+          </button>
+        </c-card-body>
+      </c-card>
+    } @else {
+      <c-row>
+        @for (project of projectList; track project.id) {
+          <c-col xs="12" md="6" lg="4" class="mb-4">
+            <c-card class="h-100">
+              <c-card-header>
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h5 class="mb-1">{{ project.name }}</h5>
+                    <p class="text-muted small mb-0">{{ project.client }}</p>
+                  </div>
+                  <c-badge [color]="getStatusColor(project.status)">
+                    {{ getStatusBadgeText(project.status) }}
+                  </c-badge>
                 </div>
-                <c-badge [color]="getStatusColor(project.status)">
-                  {{ getStatusBadgeText(project.status) }}
-                </c-badge>
-              </div>
-            </c-card-header>
-            <c-card-body>
-              <div class="mb-3">
-                <div class="d-flex justify-content-between mb-1">
-                  <small class="text-muted">Progress</small>
-                  <small class="text-muted">{{ project.progress }}%</small>
+              </c-card-header>
+              <c-card-body>
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between mb-1">
+                    <small class="text-muted">Progress</small>
+                    <small class="text-muted">{{ project.progress }}%</small>
+                  </div>
+                  <c-progress [value]="project.progress" [color]="getStatusColor(project.status)"></c-progress>
                 </div>
-                <c-progress [value]="project.progress" [color]="getStatusColor(project.status)"></c-progress>
-              </div>
-              <div class="d-flex justify-content-between align-items-center">
-                <small class="text-muted">
-                  <svg cIcon name="cilCalendar" size="sm" class="me-1"></svg>
-                  {{ project.updatedAt | date:'short' }}
-                </small>
-                <button cButton color="primary" size="sm" [routerLink]="['/projects', project.id]">
-                  View Details
-                  <svg cIcon name="cilArrowRight" size="sm" class="ms-1"></svg>
-                </button>
-              </div>
-            </c-card-body>
-          </c-card>
-        </c-col>
-      }
-    </c-row>
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted">
+                    <svg cIcon name="cilCalendar" size="sm" class="me-1"></svg>
+                    {{ project.updatedAt | date:'short' }}
+                  </small>
+                  <button cButton color="primary" size="sm" [routerLink]="['/projects', project.id]">
+                    View Details
+                    <svg cIcon name="cilArrowRight" size="sm" class="ms-1"></svg>
+                  </button>
+                </div>
+              </c-card-body>
+            </c-card>
+          </c-col>
+        }
+      </c-row>
+    }
   }
 }
-

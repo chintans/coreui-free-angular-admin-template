@@ -122,12 +122,17 @@ export class ProjectService {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
 
+  getProjectsByConsultant(consultantId: string): Project[] {
+    return this.projectsSignal().filter(p => p.consultantId === consultantId);
+  }
+
   private getInitialProjects(): Project[] {
     return [
       {
         id: '1',
         name: 'Go-To-Market Strategy',
         client: 'Acme Corp',
+        consultantId: '2',
         status: 'In Progress',
         progress: 45,
         conversationType: 'gtm',
@@ -157,6 +162,7 @@ export class ProjectService {
         id: '2',
         name: 'Consumer Research',
         client: 'Globex Inc',
+        consultantId: '2',
         status: 'Action Required',
         progress: 10,
         conversationType: 'consumer',
@@ -169,6 +175,7 @@ export class ProjectService {
         id: '3',
         name: 'Strategy Review',
         client: 'Soylent Corp',
+        consultantId: '2',
         status: 'Under Review',
         progress: 80,
         conversationType: 'strategy',

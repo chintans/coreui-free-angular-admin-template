@@ -9,6 +9,7 @@ import {
   ButtonDirective,
   CardBodyComponent,
   CardComponent,
+  CardHeaderComponent,
   FormModule,
   GridModule,
   ModalBodyComponent,
@@ -19,12 +20,18 @@ import {
   RowComponent,
   ColComponent,
   InputGroupComponent,
-  InputGroupTextDirective
+  InputGroupTextDirective,
+  TableDirective,
+  WidgetStatBComponent,
+  ProgressComponent
 } from '@coreui/angular';
 import { IconDirective } from '@coreui/icons-angular';
 import { MarketplaceService } from '../../core/services/marketplace.service';
 import { ProjectService } from '../../core/services/project.service';
+import { AuthService } from '../../core/services/auth.service';
+import { AnalyticsService } from '../../core/services/analytics.service';
 import type { Provider, Resource } from '../../core/models/project.models';
+import { UserRole } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-marketplace',
@@ -34,6 +41,7 @@ import type { Provider, Resource } from '../../core/models/project.models';
     ReactiveFormsModule,
     CardComponent,
     CardBodyComponent,
+    CardHeaderComponent,
     ButtonDirective,
     GridModule,
     RowComponent,
@@ -49,7 +57,10 @@ import type { Provider, Resource } from '../../core/models/project.models';
     ModalFooterComponent,
     IconDirective,
     InputGroupComponent,
-    InputGroupTextDirective
+    InputGroupTextDirective,
+    TableDirective,
+    WidgetStatBComponent,
+    ProgressComponent
   ],
   templateUrl: './marketplace.component.html'
 })
@@ -59,6 +70,12 @@ export class MarketplaceComponent implements OnInit {
   private readonly router = inject(Router);
   readonly marketplaceService = inject(MarketplaceService);
   private readonly projectService = inject(ProjectService);
+  private readonly authService = inject(AuthService);
+  private readonly analyticsService = inject(AnalyticsService);
+
+  readonly userRole = computed(() => this.authService.userRole());
+  readonly isSuperAdmin = computed(() => this.userRole() === UserRole.SUPER_ADMIN);
+  readonly analytics = this.analyticsService.analytics;
 
   readonly searchQuery = signal<string>('');
   readonly selectedCategory = signal<string | null>(null);
@@ -67,6 +84,13 @@ export class MarketplaceComponent implements OnInit {
   readonly selectedProjectId = signal<string | null>(null);
   readonly connectProviderId = signal<string | null>(null);
   readonly showConnectModal = signal(false);
+  
+  // Super Admin contractor management
+  readonly showContractorModal = signal(false);
+  readonly showEditContractorModal = signal(false);
+  readonly editingContractorId = signal<string | null>(null);
+  readonly showDeleteConfirm = signal(false);
+  readonly deletingContractorId = signal<string | null>(null);
 
   readonly resourceForm = this.fb.group({
     fullName: ['', Validators.required],
@@ -74,6 +98,18 @@ export class MarketplaceComponent implements OnInit {
     company: [''],
     email: ['', [Validators.required, Validators.email]],
     phone: ['']
+  });
+
+  readonly contractorForm = this.fb.group({
+    name: ['', Validators.required],
+    type: ['Agency', Validators.required],
+    rating: [4.0, [Validators.required, Validators.min(0), Validators.max(5)]],
+    rate: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
+    phone: [''],
+    description: [''],
+    skills: [''],
+    categories: ['']
   });
 
   readonly filteredProviders = computed<Provider[]>(() => {
@@ -223,5 +259,108 @@ export class MarketplaceComponent implements OnInit {
       queryParams,
       queryParamsHandling: 'merge'
     });
+  }
+
+  // Super Admin contractor management methods
+  openAddContractorModal(): void {
+    this.contractorForm.reset({
+      type: 'Agency',
+      rating: 4.0
+    });
+    this.showContractorModal.set(true);
+  }
+
+  openEditContractorModal(providerId: string): void {
+    const provider = this.marketplaceService.getProviderById(providerId);
+    if (provider) {
+      this.editingContractorId.set(providerId);
+      this.contractorForm.patchValue({
+        name: provider.name,
+        type: provider.type,
+        rating: provider.rating,
+        rate: provider.rate,
+        email: provider.email ?? '',
+        phone: provider.phone ?? '',
+        description: provider.description ?? '',
+        skills: provider.skills.join(', '),
+        categories: provider.categories.join(', ')
+      });
+      this.showEditContractorModal.set(true);
+    }
+  }
+
+  closeContractorModal(): void {
+    this.showContractorModal.set(false);
+    this.contractorForm.reset();
+  }
+
+  closeEditContractorModal(): void {
+    this.showEditContractorModal.set(false);
+    this.editingContractorId.set(null);
+    this.contractorForm.reset();
+  }
+
+  saveContractor(): void {
+    if (this.contractorForm.valid) {
+      const formValue = this.contractorForm.value;
+      const skills = formValue.skills?.split(',').map((s: string) => s.trim()).filter((s: string) => s) ?? [];
+      const categories = formValue.categories?.split(',').map((c: string) => c.trim()).filter((c: string) => c) ?? [];
+
+      const provider: Omit<Provider, 'id'> = {
+        name: formValue.name ?? '',
+        type: formValue.type as 'Agency' | 'Independent',
+        rating: formValue.rating ?? 4.0,
+        rate: formValue.rate ?? '',
+        email: formValue.email ?? undefined,
+        phone: formValue.phone || undefined,
+        description: formValue.description || undefined,
+        skills,
+        categories
+      };
+
+      this.marketplaceService.addProvider(provider);
+      this.closeContractorModal();
+    }
+  }
+
+  updateContractor(): void {
+    if (this.contractorForm.valid && this.editingContractorId()) {
+      const formValue = this.contractorForm.value;
+      const skills = formValue.skills?.split(',').map((s: string) => s.trim()).filter((s: string) => s) ?? [];
+      const categories = formValue.categories?.split(',').map((c: string) => c.trim()).filter((c: string) => c) ?? [];
+
+      const updates: Partial<Provider> = {
+        name: formValue.name ?? '',
+        type: formValue.type as 'Agency' | 'Independent',
+        rating: formValue.rating ?? 4.0,
+        rate: formValue.rate ?? '',
+        email: formValue.email ?? undefined,
+        phone: formValue.phone || undefined,
+        description: formValue.description || undefined,
+        skills,
+        categories
+      };
+
+      this.marketplaceService.updateProvider(this.editingContractorId()!, updates);
+      this.closeEditContractorModal();
+    }
+  }
+
+  confirmDelete(providerId: string): void {
+    this.deletingContractorId.set(providerId);
+    this.showDeleteConfirm.set(true);
+  }
+
+  deleteContractor(): void {
+    const id = this.deletingContractorId();
+    if (id) {
+      this.marketplaceService.deleteProvider(id);
+      this.cancelDelete();
+    }
+  }
+
+  cancelDelete(): void {
+    this.showDeleteConfirm.set(false);
+    this.deletingContractorId.set(null);
   }
 }

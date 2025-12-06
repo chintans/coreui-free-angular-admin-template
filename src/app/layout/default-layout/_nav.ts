@@ -33,7 +33,7 @@ export const navItems: NavItemWithRole[] = [
     name: 'Client Portal',
     url: '/client-portal',
     iconComponent: { name: 'cil-user' },
-    roles: [UserRole.SUPER_ADMIN, UserRole.CLIENT]
+    roles: [UserRole.CLIENT]
   },
   {
     name: 'Users',

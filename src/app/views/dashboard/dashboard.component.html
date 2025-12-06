@@ -1,72 +1,200 @@
-<c-row class="mb-4">
-  <c-col sm="6" xl="3">
-    <c-widget-stat-b class="mb-4" color="primary" inverse text="Active Projects" title="Projects" [value]="projectsCount().toString()">
-      <c-progress class="my-2" thin [value]="75" white />
-    </c-widget-stat-b>
-  </c-col>
-  <c-col sm="6" xl="3">
-    <c-widget-stat-b class="mb-4" color="warning" inverse text="Pending Actions" title="Actions" [value]="pendingActionsCount().toString()">
-      <c-progress class="my-2" thin [value]="25" white />
-    </c-widget-stat-b>
-  </c-col>
-</c-row>
+@if (isSuperAdmin()) {
+  <!-- Super Admin Dashboard - Platform Analytics -->
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <h2 class="mb-4">Platform Analytics & KPIs</h2>
+    </c-col>
+  </c-row>
 
-<c-row class="mb-4">
-  <c-col xs="12">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h3>Active Projects</h3>
-      <button cButton color="primary" routerLink="/projects/new">
-        <svg cIcon class="me-2" name="cilPlus"></svg>
-        New Project
-      </button>
-    </div>
-    <c-card class="mb-4">
-      <c-card-body>
-        @if (projects(); as projectList) {
-          @if (projectList.length === 0) {
-            <div class="text-center py-5">
-              <svg cIcon name="cilBriefcase" size="3xl" class="text-muted mb-3"></svg>
-              <h4>No active projects</h4>
-              <p class="text-muted">Get started by creating your first project</p>
-              <button cButton color="primary" routerLink="/projects/new">
-                <svg cIcon class="me-2" name="cilPlus"></svg>
-                Create New Project
-              </button>
+  <!-- Key Metrics Row 1 -->
+  <c-row class="mb-4">
+    <c-col sm="6" xl="3">
+      <c-widget-stat-b class="mb-4" color="primary" inverse text="Monthly Active Users" title="MAU" [value]="analytics().monthlyActiveUsers.toString()">
+        <c-progress class="my-2" thin [value]="100" white />
+      </c-widget-stat-b>
+    </c-col>
+    <c-col sm="6" xl="3">
+      <c-widget-stat-b class="mb-4" color="info" inverse text="Total Projects" title="Projects" [value]="analytics().totalProjects.toString()">
+        <c-progress class="my-2" thin [value]="75" white />
+      </c-widget-stat-b>
+    </c-col>
+    <c-col sm="6" xl="3">
+      <c-widget-stat-b class="mb-4" color="success" inverse text="Avg Projects per Consultant" title="Avg/Consultant" [value]="analytics().averageProjectsPerConsultant.toString()">
+        <c-progress class="my-2" thin [value]="50" white />
+      </c-widget-stat-b>
+    </c-col>
+    <c-col sm="6" xl="3">
+      <c-widget-stat-b class="mb-4" color="warning" inverse text="Total Users" title="Users" [value]="analytics().totalUsers.toString()">
+        <c-progress class="my-2" thin [value]="60" white />
+      </c-widget-stat-b>
+    </c-col>
+  </c-row>
+
+  <!-- Key Metrics Row 2 -->
+  <c-row class="mb-4">
+    <c-col sm="6" xl="3">
+      <c-widget-stat-b class="mb-4" color="danger" inverse text="Agency Contractors" title="Agencies" [value]="analytics().agencyContractors.toString()">
+        <c-progress class="my-2" thin [value]="80" white />
+      </c-widget-stat-b>
+    </c-col>
+    <c-col sm="6" xl="3">
+      <c-widget-stat-b class="mb-4" color="secondary" inverse text="Independent Contractors" title="Independent" [value]="analytics().independentContractors.toString()">
+        <c-progress class="my-2" thin [value]="40" white />
+      </c-widget-stat-b>
+    </c-col>
+    <c-col sm="6" xl="3">
+      <c-widget-stat-b class="mb-4" color="info" inverse text="Marketplace Engagement Rate" title="Engagement" [value]="analytics().marketplaceEngagementRate.toString() + '%'">
+        <c-progress class="my-2" thin [value]="analytics().marketplaceEngagementRate" white />
+      </c-widget-stat-b>
+    </c-col>
+    <c-col sm="6" xl="3">
+      <c-widget-stat-b class="mb-4" color="success" inverse text="Project Completion Rate" title="Completion" [value]="analytics().projectCompletionRate.toString() + '%'">
+        <c-progress class="my-2" thin [value]="analytics().projectCompletionRate" white />
+      </c-widget-stat-b>
+    </c-col>
+  </c-row>
+
+  <!-- Top Matched Entities -->
+  <c-row class="mb-4">
+    <c-col xs="12" lg="6">
+      <c-card class="mb-4">
+        <c-card-header>
+          <h5>Top Matched Entities in Marketplace</h5>
+        </c-card-header>
+        <c-card-body>
+          @if (analytics().topMatchedEntities.length === 0) {
+            <div class="text-center py-3">
+              <p class="text-muted mb-0">No matched entities yet</p>
             </div>
           } @else {
             <table cTable hover responsive>
               <thead>
                 <tr>
-                  <th>Project Name</th>
-                  <th>Client</th>
-                  <th>Status</th>
-                  <th>Progress</th>
-                  <th>Actions</th>
+                  <th>Entity Name</th>
+                  <th>Type</th>
+                  <th>Matches</th>
+                  <th>Engagement</th>
                 </tr>
               </thead>
               <tbody>
-                @for (project of projectList; track project.id) {
+                @for (entity of analytics().topMatchedEntities; track entity.id) {
                   <tr>
-                    <td>{{ project.name }}</td>
-                    <td>{{ project.client }}</td>
+                    <td>{{ entity.name }}</td>
                     <td>
-                      <c-badge [color]="getStatusColor(project.status)">{{ project.status }}</c-badge>
+                      <c-badge [color]="entity.type === 'Agency' ? 'primary' : 'secondary'">
+                        {{ entity.type }}
+                      </c-badge>
                     </td>
-                    <td>
-                      <c-progress [value]="project.progress" [color]="getStatusColor(project.status)" class="mb-0"></c-progress>
-                    </td>
-                    <td>
-                      <button cButton color="link" size="sm" [routerLink]="['/projects', project.id]">
-                        View Details
-                      </button>
-                    </td>
+                    <td>{{ entity.matchCount }}</td>
+                    <td>{{ entity.engagementRate }}%</td>
                   </tr>
                 }
               </tbody>
             </table>
           }
-        }
-      </c-card-body>
-    </c-card>
-  </c-col>
-</c-row>
+        </c-card-body>
+      </c-card>
+    </c-col>
+    <c-col xs="12" lg="6">
+      <c-card class="mb-4">
+        <c-card-header>
+          <h5>Platform Overview</h5>
+        </c-card-header>
+        <c-card-body>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between mb-2">
+              <span>Active Consultants</span>
+              <strong>{{ analytics().activeConsultants }}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Total Contractors</span>
+              <strong>{{ analytics().totalContractors }}</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Marketplace Engagement</span>
+              <strong>{{ analytics().marketplaceEngagementRate }}%</strong>
+            </div>
+            <div class="d-flex justify-content-between mb-2">
+              <span>Project Completion Rate</span>
+              <strong>{{ analytics().projectCompletionRate }}%</strong>
+            </div>
+          </div>
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+} @else {
+  <!-- Regular Dashboard for Consultants/Clients -->
+  <c-row class="mb-4">
+    <c-col sm="6" xl="3">
+      <c-widget-stat-b class="mb-4" color="primary" inverse text="Active Projects" title="Projects" [value]="projectsCount().toString()">
+        <c-progress class="my-2" thin [value]="75" white />
+      </c-widget-stat-b>
+    </c-col>
+    <c-col sm="6" xl="3">
+      <c-widget-stat-b class="mb-4" color="warning" inverse text="Pending Actions" title="Actions" [value]="pendingActionsCount().toString()">
+        <c-progress class="my-2" thin [value]="25" white />
+      </c-widget-stat-b>
+    </c-col>
+  </c-row>
+
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Active Projects</h3>
+        <button cButton color="primary" routerLink="/projects/new">
+          <svg cIcon class="me-2" name="cilPlus"></svg>
+          New Project
+        </button>
+      </div>
+      <c-card class="mb-4">
+        <c-card-body>
+          @if (projects(); as projectList) {
+            @if (projectList.length === 0) {
+              <div class="text-center py-5">
+                <svg cIcon name="cilBriefcase" size="3xl" class="text-muted mb-3"></svg>
+                <h4>No active projects</h4>
+                <p class="text-muted">Get started by creating your first project</p>
+                <button cButton color="primary" routerLink="/projects/new">
+                  <svg cIcon class="me-2" name="cilPlus"></svg>
+                  Create New Project
+                </button>
+              </div>
+            } @else {
+              <table cTable hover responsive>
+                <thead>
+                  <tr>
+                    <th>Project Name</th>
+                    <th>Client</th>
+                    <th>Status</th>
+                    <th>Progress</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (project of projectList; track project.id) {
+                    <tr>
+                      <td>{{ project.name }}</td>
+                      <td>{{ project.client }}</td>
+                      <td>
+                        <c-badge [color]="getStatusColor(project.status)">{{ project.status }}</c-badge>
+                      </td>
+                      <td>
+                        <c-progress [value]="project.progress" [color]="getStatusColor(project.status)" class="mb-0"></c-progress>
+                      </td>
+                      <td>
+                        <button cButton color="link" size="sm" [routerLink]="['/projects', project.id]">
+                          View Details
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            }
+          }
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+}

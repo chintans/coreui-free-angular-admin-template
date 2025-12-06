@@ -38,7 +38,7 @@ export const routes: Routes = [
         path: 'client-portal',
         loadChildren: () => import('./views/client-portal/routes').then((m) => m.routes),
         canActivate: [roleGuard],
-        data: { roles: [UserRole.CLIENT, UserRole.SUPER_ADMIN] }
+        data: { roles: [UserRole.CLIENT] }
       },
       {
         path: 'users',

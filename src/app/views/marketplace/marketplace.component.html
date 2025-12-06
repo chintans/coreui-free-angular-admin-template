@@ -1,3 +1,123 @@
+@if (isSuperAdmin()) {
+  <!-- Super Admin: Marketplace Analytics -->
+  <c-row class="mb-4">
+    <c-col xs="12">
+      <h2 class="mb-4">Marketplace Analytics & Management</h2>
+    </c-col>
+  </c-row>
+
+  <c-row class="mb-4">
+    <c-col sm="6" xl="3">
+      <c-widget-stat-b class="mb-4" color="primary" inverse text="Total Contractors" title="Contractors" [value]="analytics().totalContractors.toString()">
+        <c-progress class="my-2" thin [value]="100" white />
+      </c-widget-stat-b>
+    </c-col>
+    <c-col sm="6" xl="3">
+      <c-widget-stat-b class="mb-4" color="info" inverse text="Agency Contractors" title="Agencies" [value]="analytics().agencyContractors.toString()">
+        <c-progress class="my-2" thin [value]="75" white />
+      </c-widget-stat-b>
+    </c-col>
+    <c-col sm="6" xl="3">
+      <c-widget-stat-b class="mb-4" color="success" inverse text="Independent Contractors" title="Independent" [value]="analytics().independentContractors.toString()">
+        <c-progress class="my-2" thin [value]="50" white />
+      </c-widget-stat-b>
+    </c-col>
+    <c-col sm="6" xl="3">
+      <c-widget-stat-b class="mb-4" color="warning" inverse text="Engagement Rate" title="Engagement" [value]="analytics().marketplaceEngagementRate.toString() + '%'">
+        <c-progress class="my-2" thin [value]="analytics().marketplaceEngagementRate" white />
+      </c-widget-stat-b>
+    </c-col>
+  </c-row>
+
+  <c-row class="mb-4">
+    <c-col xs="12" lg="6">
+      <c-card class="mb-4">
+        <c-card-header>
+          <div class="d-flex justify-content-between align-items-center">
+            <h5>Top Matched Entities</h5>
+          </div>
+        </c-card-header>
+        <c-card-body>
+          @if (analytics().topMatchedEntities.length === 0) {
+            <p class="text-muted mb-0">No matched entities yet</p>
+          } @else {
+            <table cTable hover responsive>
+              <thead>
+                <tr>
+                  <th>Entity Name</th>
+                  <th>Type</th>
+                  <th>Matches</th>
+                  <th>Engagement</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (entity of analytics().topMatchedEntities; track entity.id) {
+                  <tr>
+                    <td>{{ entity.name }}</td>
+                    <td>
+                      <c-badge [color]="entity.type === 'Agency' ? 'primary' : 'secondary'">
+                        {{ entity.type }}
+                      </c-badge>
+                    </td>
+                    <td>{{ entity.matchCount }}</td>
+                    <td>{{ entity.engagementRate }}%</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          }
+        </c-card-body>
+      </c-card>
+    </c-col>
+    <c-col xs="12" lg="6">
+      <c-card class="mb-4">
+        <c-card-header>
+          <div class="d-flex justify-content-between align-items-center">
+            <h5>Contractor Management</h5>
+            <button cButton color="primary" size="sm" (click)="openAddContractorModal()">
+              <svg cIcon class="me-2" name="cilPlus"></svg>
+              Add Contractor
+            </button>
+          </div>
+        </c-card-header>
+        <c-card-body>
+          <table cTable hover responsive>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Rating</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (provider of marketplaceService.providers(); track provider.id) {
+                <tr>
+                  <td>{{ provider.name }}</td>
+                  <td>
+                    <c-badge [color]="provider.type === 'Agency' ? 'primary' : 'secondary'">
+                      {{ provider.type }}
+                    </c-badge>
+                  </td>
+                  <td>{{ provider.rating }}</td>
+                  <td>
+                    <button cButton color="link" size="sm" (click)="openEditContractorModal(provider.id)">
+                      <svg cIcon name="cilPencil"></svg>
+                    </button>
+                    <button cButton color="link" size="sm" (click)="confirmDelete(provider.id)">
+                      <svg cIcon name="cilTrash"></svg>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </c-card-body>
+      </c-card>
+    </c-col>
+  </c-row>
+}
+
 <c-row>
   <c-col xs="12">
     <!-- Header Section -->
@@ -298,3 +418,136 @@
     </button>
   </c-modal-footer>
 </c-modal>
+
+<!-- Super Admin: Add Contractor Modal -->
+@if (isSuperAdmin()) {
+  <c-modal [visible]="showContractorModal()" (visibleChange)="showContractorModal.set($event)">
+    <c-modal-header>
+      <h5 cModalTitle>Add New Contractor</h5>
+      <button cButtonClose (click)="closeContractorModal()"></button>
+    </c-modal-header>
+    <c-modal-body>
+      <form [formGroup]="contractorForm">
+        <div class="mb-3">
+          <label cLabel>Name <span class="text-danger">*</span></label>
+          <input cFormControl formControlName="name" placeholder="Contractor Name" />
+        </div>
+        <div class="mb-3">
+          <label cLabel>Type <span class="text-danger">*</span></label>
+          <select cFormControl formControlName="type">
+            <option value="Agency">Agency</option>
+            <option value="Independent">Independent</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label cLabel>Rating <span class="text-danger">*</span></label>
+          <input cFormControl type="number" formControlName="rating" min="0" max="5" step="0.1" />
+        </div>
+        <div class="mb-3">
+          <label cLabel>Rate <span class="text-danger">*</span></label>
+          <input cFormControl formControlName="rate" placeholder="$150/hr" />
+        </div>
+        <div class="mb-3">
+          <label cLabel>Email <span class="text-danger">*</span></label>
+          <input cFormControl type="email" formControlName="email" />
+        </div>
+        <div class="mb-3">
+          <label cLabel>Phone</label>
+          <input cFormControl type="tel" formControlName="phone" />
+        </div>
+        <div class="mb-3">
+          <label cLabel>Description</label>
+          <textarea cFormControl formControlName="description" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+          <label cLabel>Skills (comma-separated)</label>
+          <input cFormControl formControlName="skills" placeholder="GTM Strategy, PPC, Content Marketing" />
+        </div>
+        <div class="mb-3">
+          <label cLabel>Categories (comma-separated)</label>
+          <input cFormControl formControlName="categories" placeholder="Marketing, Sales, GTM Strategy" />
+        </div>
+      </form>
+    </c-modal-body>
+    <c-modal-footer>
+      <button cButton color="secondary" (click)="closeContractorModal()">Cancel</button>
+      <button cButton color="primary" (click)="saveContractor()" [disabled]="contractorForm.invalid">
+        Add Contractor
+      </button>
+    </c-modal-footer>
+  </c-modal>
+
+  <!-- Edit Contractor Modal -->
+  <c-modal [visible]="showEditContractorModal()" (visibleChange)="showEditContractorModal.set($event)">
+    <c-modal-header>
+      <h5 cModalTitle>Edit Contractor</h5>
+      <button cButtonClose (click)="closeEditContractorModal()"></button>
+    </c-modal-header>
+    <c-modal-body>
+      <form [formGroup]="contractorForm">
+        <div class="mb-3">
+          <label cLabel>Name <span class="text-danger">*</span></label>
+          <input cFormControl formControlName="name" placeholder="Contractor Name" />
+        </div>
+        <div class="mb-3">
+          <label cLabel>Type <span class="text-danger">*</span></label>
+          <select cFormControl formControlName="type">
+            <option value="Agency">Agency</option>
+            <option value="Independent">Independent</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label cLabel>Rating <span class="text-danger">*</span></label>
+          <input cFormControl type="number" formControlName="rating" min="0" max="5" step="0.1" />
+        </div>
+        <div class="mb-3">
+          <label cLabel>Rate <span class="text-danger">*</span></label>
+          <input cFormControl formControlName="rate" placeholder="$150/hr" />
+        </div>
+        <div class="mb-3">
+          <label cLabel>Email <span class="text-danger">*</span></label>
+          <input cFormControl type="email" formControlName="email" />
+        </div>
+        <div class="mb-3">
+          <label cLabel>Phone</label>
+          <input cFormControl type="tel" formControlName="phone" />
+        </div>
+        <div class="mb-3">
+          <label cLabel>Description</label>
+          <textarea cFormControl formControlName="description" rows="3"></textarea>
+        </div>
+        <div class="mb-3">
+          <label cLabel>Skills (comma-separated)</label>
+          <input cFormControl formControlName="skills" placeholder="GTM Strategy, PPC, Content Marketing" />
+        </div>
+        <div class="mb-3">
+          <label cLabel>Categories (comma-separated)</label>
+          <input cFormControl formControlName="categories" placeholder="Marketing, Sales, GTM Strategy" />
+        </div>
+      </form>
+    </c-modal-body>
+    <c-modal-footer>
+      <button cButton color="secondary" (click)="closeEditContractorModal()">Cancel</button>
+      <button cButton color="primary" (click)="updateContractor()" [disabled]="contractorForm.invalid">
+        Update Contractor
+      </button>
+    </c-modal-footer>
+  </c-modal>
+
+  <!-- Delete Confirmation Modal -->
+  <c-modal [visible]="showDeleteConfirm()" (visibleChange)="showDeleteConfirm.set($event)">
+    <c-modal-header>
+      <h5 cModalTitle>Confirm Delete</h5>
+      <button cButtonClose (click)="cancelDelete()"></button>
+    </c-modal-header>
+    <c-modal-body>
+      <p>Are you sure you want to delete this contractor? This action cannot be undone.</p>
+    </c-modal-body>
+    <c-modal-footer>
+      <button cButton color="secondary" (click)="cancelDelete()">Cancel</button>
+      <button cButton color="danger" (click)="deleteContractor()">
+        Delete
+      </button>
+    </c-modal-footer>
+  </c-modal>
+}

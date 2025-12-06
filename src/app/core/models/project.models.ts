@@ -2,6 +2,7 @@ export interface Project {
 	id: string;
 	name: string;
 	client: string;
+	consultantId?: string;
 	status: ProjectStatus;
 	progress: number;
 	conversationType: ConversationType;
