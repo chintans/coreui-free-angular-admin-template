@@ -64,7 +64,7 @@
   },
   "engines": {
     "node": "^20.19.0 || ^22.12.0 || ^24.0.0",
-    "npm": ">= 9"
+    "pnpm": ">= 10"
   },
   "bugs": {
     "url": "https://github.com/coreui/coreui-free-angular-admin-template/issues"
